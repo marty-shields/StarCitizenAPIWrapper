@@ -4,10 +4,69 @@
         <name>StarCitizenAPIWrapper.Models</name>
     </assembly>
     <members>
+        <member name="T:StarCitizenAPIWrapper.Models.Attributes.ApiNameAttribute">
+            <summary>
+            A custom name attribute for properties.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Models.Attributes.ApiNameAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:StarCitizenAPIWrapper.Models.Attributes.ApiNameAttribute"/>/
+            </summary>
+            <param name="name"></param>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Attributes.ApiNameAttribute.Name">
+            <summary>
+            The name set by the property attribute.
+            </summary>
+        </member>
         <member name="T:StarCitizenAPIWrapper.Models.Organization.IOrganization">
             <summary>
             Interface for organization info from the API.
             </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUser">
+            <summary>
+            Implementation of a default <see cref="T:StarCitizenAPIWrapper.Models.User.IUser"/>.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUser.Profile">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUser.Organization">
+            <inheritdoc />
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile">
+            <summary>
+            The default implementation of <see cref="T:StarCitizenAPIWrapper.Models.User.IUserProfile"/>.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile.Badge">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile.BadgeImage">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile.Display">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile.Enlisted">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile.Fluency">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile.Handle">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile.Id">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile.Image">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile.Page">
+            <inheritdoc />
         </member>
         <member name="T:StarCitizenAPIWrapper.Models.User.IUser">
             <summary>
@@ -23,17 +82,6 @@
             <summary>
             The current <see cref="T:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo"/> of the organization this user is currently member of.
             </summary>
-        </member>
-        <member name="T:StarCitizenAPIWrapper.Models.User.StarCitizenUser">
-            <summary>
-            Implementation of a default <see cref="T:StarCitizenAPIWrapper.Models.User.IUser"/>.
-            </summary>
-        </member>
-        <member name="P:StarCitizenAPIWrapper.Models.User.StarCitizenUser.Profile">
-            <inheritdoc />
-        </member>
-        <member name="P:StarCitizenAPIWrapper.Models.User.StarCitizenUser.Organization">
-            <inheritdoc />
         </member>
         <member name="T:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo">
             <summary>

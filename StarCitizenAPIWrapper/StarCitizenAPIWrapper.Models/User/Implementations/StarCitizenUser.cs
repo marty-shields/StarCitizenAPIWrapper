@@ -1,4 +1,4 @@
-﻿namespace StarCitizenAPIWrapper.Models.User
+﻿namespace StarCitizenAPIWrapper.Models.User.Implementations
 {
     /// <summary>
     /// Implementation of a default <see cref="IUser"/>.

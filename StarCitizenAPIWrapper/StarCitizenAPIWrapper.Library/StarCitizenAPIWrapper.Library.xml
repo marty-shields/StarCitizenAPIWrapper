@@ -20,7 +20,7 @@
             </summary>
             <param name="apiKey"></param>
         </member>
-        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetClient">
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetClient(System.String)">
             <summary>
             Gives the current <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
             Creates one if there isn't a current instance.

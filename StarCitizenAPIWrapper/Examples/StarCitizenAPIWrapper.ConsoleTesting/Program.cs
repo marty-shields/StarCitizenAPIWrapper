@@ -12,7 +12,7 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
 
         static async Task MainAsync()
         {
-            var client = StarCitizenClient.GetClient();
+            var client = StarCitizenClient.GetClient("12794c6b066ad75b4f73c1134ac62788");
             var user = await client.GetUser("Anachronis");
         }
     }
