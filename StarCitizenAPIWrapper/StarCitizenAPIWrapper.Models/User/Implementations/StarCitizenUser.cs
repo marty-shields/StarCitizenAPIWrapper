@@ -8,6 +8,6 @@
         /// <inheritdoc />
         public IUserProfile Profile { get; set; }
         /// <inheritdoc />
-        public UserOrganizationInfo Organization { get; set; }
+        public IUserOrganizationInfo Organization { get; set; }
     }
 }

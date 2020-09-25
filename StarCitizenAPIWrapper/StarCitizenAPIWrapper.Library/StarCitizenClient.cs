@@ -85,14 +85,20 @@ namespace StarCitizenAPIWrapper.Library
 
             var data = JObject.Parse(content);
             var profileData = data["data"]?["profile"];
+            var organizationData = data["data"]?["organization"];
 
             var user = new StarCitizenUser
             {
-                Profile = ParseUserProfile(profileData)
+                Profile = ParseUserProfile(profileData),
+                Organization = ParseUserOrganizationInfo(organizationData)
             };
 
             return user;
         }
+
+        #endregion
+
+        #region private helper methods
 
         /// <summary>
         /// Parses the given profile json into a <see cref="IUserProfile"/>.
@@ -102,7 +108,7 @@ namespace StarCitizenAPIWrapper.Library
         private static IUserProfile ParseUserProfile(JToken profileData)
         {
             var userProfile = new StarCitizenUserProfile();
-            foreach (var property in typeof(StarCitizenUserProfile).GetProperties())
+            foreach (var property in typeof(IUserProfile).GetProperties())
             {
                 var currentValue = profileData?[property.Name.ToLower()];
                 var attributes = property.GetCustomAttributes(true);
@@ -110,39 +116,52 @@ namespace StarCitizenAPIWrapper.Library
                 switch (property.Name)
                 {
                     case nameof(StarCitizenUserProfile.Page):
-                    {
-                        property.SetValue(userProfile, (currentValue?["title"]?.ToString(), currentValue?["url"]?.ToString()));
-                        break;
-                    }
-                    case nameof(StarCitizenUserProfile.Enlisted):
-                    {
-                        var dateTime = DateTime.Parse(currentValue?.ToString());
-                        property.SetValue(userProfile, dateTime);
-                        break;
-                    }
-                    case nameof(StarCitizenUserProfile.Fluency):
-                    {
-                        var array = currentValue as JArray;
-                        var languageList = array!.Select(arrayItem => arrayItem.ToString()).ToList();
-                        property.SetValue(userProfile, languageList.ToArray());
-
-                        break;
-                    }
-                    default:
-                    {
-                        if (attributes.Any(x => x is ApiNameAttribute))
                         {
-                            var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
-                            currentValue = profileData?[nameAttribute?.Name!];
+                            property.SetValue(userProfile, (currentValue?["title"]?.ToString(), currentValue?["url"]?.ToString()));
+                            break;
                         }
+                    case nameof(StarCitizenUserProfile.Enlisted):
+                        {
+                            var dateTime = DateTime.Parse(currentValue?.ToString());
+                            property.SetValue(userProfile, dateTime);
+                            break;
+                        }
+                    case nameof(StarCitizenUserProfile.Fluency):
+                        {
+                            var array = currentValue as JArray;
+                            var languageList = array!.Select(arrayItem => arrayItem.ToString()).ToList();
+                            property.SetValue(userProfile, languageList.ToArray());
 
-                        property.SetValue(userProfile, currentValue?.ToString());
-                        break;
-                    }
+                            break;
+                        }
+                    default:
+                        {
+                            if (attributes.Any(x => x is ApiNameAttribute))
+                            {
+                                var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
+                                currentValue = profileData?[nameAttribute?.Name!];
+                            }
+
+                            property.SetValue(userProfile, currentValue?.ToString());
+                            break;
+                        }
                 }
             }
 
             return userProfile;
+        }
+
+        private static IUserOrganizationInfo ParseUserOrganizationInfo(JToken userOrganizationData)
+        {
+            var organizationData = new UserOrganizationInfo();
+
+            foreach (var property in typeof(UserOrganizationInfo).GetProperties())
+            {
+                var value = userOrganizationData[property.Name.ToLower()];
+                property.SetValue(organizationData, value?.ToString());
+            }
+
+            return organizationData;
         }
 
         #endregion

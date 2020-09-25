@@ -33,5 +33,12 @@
             <param name="handle">The handle of the requested user.</param>
             <returns>An instance of <see cref="T:StarCitizenAPIWrapper.Models.User.IUser"/> containing the information about the requested user.</returns>
         </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseUserProfile(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given profile json into a <see cref="T:StarCitizenAPIWrapper.Models.User.IUserProfile"/>.
+            </summary>
+            <param name="profileData">The <see cref="T:Newtonsoft.Json.Linq.JToken"/> containing the profile information.</param>
+            <returns>A new instance of <see cref="T:StarCitizenAPIWrapper.Models.User.IUserProfile"/> containing the parsed information.</returns>
+        </member>
     </members>
 </doc>

@@ -68,6 +68,23 @@
         <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUserProfile.Page">
             <inheritdoc />
         </member>
+        <member name="T:StarCitizenAPIWrapper.Models.User.Implementations.UserOrganizationInfo">
+            <summary>
+            The default implementation of <see cref="T:StarCitizenAPIWrapper.Models.User.IUserOrganizationInfo"/>.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.UserOrganizationInfo.Image">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.UserOrganizationInfo.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.UserOrganizationInfo.Rank">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.Implementations.UserOrganizationInfo.Sid">
+            <inheritdoc />
+        </member>
         <member name="T:StarCitizenAPIWrapper.Models.User.IUser">
             <summary>
             Interface for user info from the API.
@@ -80,30 +97,30 @@
         </member>
         <member name="P:StarCitizenAPIWrapper.Models.User.IUser.Organization">
             <summary>
-            The current <see cref="T:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo"/> of the organization this user is currently member of.
+            The current <see cref="T:StarCitizenAPIWrapper.Models.User.Implementations.UserOrganizationInfo"/> of the organization this user is currently member of.
             </summary>
         </member>
-        <member name="T:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo">
+        <member name="T:StarCitizenAPIWrapper.Models.User.IUserOrganizationInfo">
             <summary>
-            The information about a organization a user is currently member of.
+            Interface for the information about a organization a user is currently member of.
             </summary>
         </member>
-        <member name="P:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo.Image">
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserOrganizationInfo.Image">
             <summary>
             The image URL of the organization image.
             </summary>
         </member>
-        <member name="P:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo.Name">
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserOrganizationInfo.Name">
             <summary>
             The name of the organization.
             </summary>
         </member>
-        <member name="P:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo.Rank">
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserOrganizationInfo.Rank">
             <summary>
             The rank of the user inside this organization.
             </summary>
         </member>
-        <member name="P:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo.Sid">
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserOrganizationInfo.Sid">
             <summary>
             The SID of the organization.
             </summary>

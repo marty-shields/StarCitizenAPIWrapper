@@ -1,4 +1,5 @@
 ﻿using System;
+using StarCitizenAPIWrapper.Models.Attributes;
 
 namespace StarCitizenAPIWrapper.Models.User
 {
@@ -14,6 +15,7 @@ namespace StarCitizenAPIWrapper.Models.User
         /// <summary>
         /// The url to the image of the <see cref="Badge"/>.
         /// </summary>
+        [ApiName("badge_image")]
         string BadgeImage { get; set; }
         /// <summary>
         /// The display name of this user.

@@ -1,5 +1,4 @@
 ﻿using System;
-using StarCitizenAPIWrapper.Models.Attributes;
 
 namespace StarCitizenAPIWrapper.Models.User.Implementations
 {
@@ -12,7 +11,6 @@ namespace StarCitizenAPIWrapper.Models.User.Implementations
         public string Badge { get; set; }
 
         /// <inheritdoc />
-        [ApiName("badge_image")]
         public string BadgeImage { get; set; }
 
         /// <inheritdoc />
