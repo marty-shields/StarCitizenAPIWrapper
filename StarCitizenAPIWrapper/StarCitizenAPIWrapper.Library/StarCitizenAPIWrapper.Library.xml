@@ -20,11 +20,25 @@
             </summary>
             <param name="apiKey"></param>
         </member>
-        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetClient">
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetClient(System.String)">
             <summary>
             Gives the current <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
             Creates one if there isn't a current instance.
             </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetUser(System.String)">
+            <summary>
+            Sends an API request for user information.
+            </summary>
+            <param name="handle">The handle of the requested user.</param>
+            <returns>An instance of <see cref="T:StarCitizenAPIWrapper.Models.User.IUser"/> containing the information about the requested user.</returns>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseUserProfile(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given profile json into a <see cref="T:StarCitizenAPIWrapper.Models.User.IUserProfile"/>.
+            </summary>
+            <param name="profileData">The <see cref="T:Newtonsoft.Json.Linq.JToken"/> containing the profile information.</param>
+            <returns>A new instance of <see cref="T:StarCitizenAPIWrapper.Models.User.IUserProfile"/> containing the parsed information.</returns>
         </member>
     </members>
 </doc>

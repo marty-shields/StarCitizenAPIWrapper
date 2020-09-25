@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarCitizenAPIWrapper.Libra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarCitizenAPIWrapper.Models", "StarCitizenAPIWrapper.Models\StarCitizenAPIWrapper.Models.csproj", "{A367DFC1-AD3F-4550-B930-1EE1E026A6FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarCitizenAPIWrapper.ConsoleTesting", "Examples\StarCitizenAPIWrapper.ConsoleTesting\StarCitizenAPIWrapper.ConsoleTesting.csproj", "{D3720EDE-EC3D-4D2D-8237-04983C5375C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A367DFC1-AD3F-4550-B930-1EE1E026A6FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A367DFC1-AD3F-4550-B930-1EE1E026A6FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A367DFC1-AD3F-4550-B930-1EE1E026A6FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3720EDE-EC3D-4D2D-8237-04983C5375C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3720EDE-EC3D-4D2D-8237-04983C5375C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3720EDE-EC3D-4D2D-8237-04983C5375C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3720EDE-EC3D-4D2D-8237-04983C5375C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

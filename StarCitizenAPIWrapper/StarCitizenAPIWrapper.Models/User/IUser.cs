@@ -1,4 +1,5 @@
 ﻿using StarCitizenAPIWrapper.Models.Organization;
+using StarCitizenAPIWrapper.Models.User.Implementations;
 
 namespace StarCitizenAPIWrapper.Models.User
 {
@@ -14,6 +15,6 @@ namespace StarCitizenAPIWrapper.Models.User
         /// <summary>
         /// The current <see cref="UserOrganizationInfo"/> of the organization this user is currently member of.
         /// </summary>
-        UserOrganizationInfo Organization { get; set; }
+        IUserOrganizationInfo Organization { get; set; }
     }
 }
