@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>StarCitizenAPIWrapper.Library</name>
+    </assembly>
+    <members>
+        <member name="T:StarCitizenAPIWrapper.Library.StarCitizenClient">
+            <summary>
+            Client to connect to the Star Citizen API.
+            </summary>
+        </member>
+        <member name="F:StarCitizenAPIWrapper.Library.StarCitizenClient._currentClient">
+            <summary>
+            The current <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/> instance.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
+            </summary>
+            <param name="apiKey"></param>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetClient">
+            <summary>
+            Gives the current <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
+            Creates one if there isn't a current instance.
+            </summary>
+        </member>
+    </members>
+</doc>

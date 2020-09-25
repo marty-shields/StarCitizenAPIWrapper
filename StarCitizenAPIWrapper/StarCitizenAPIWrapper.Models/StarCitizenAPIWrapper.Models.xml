@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>StarCitizenAPIWrapper.Models</name>
+    </assembly>
+    <members>
+        <member name="T:StarCitizenAPIWrapper.Models.Organization.IOrganization">
+            <summary>
+            Interface for organization info from the API.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.User.IUser">
+            <summary>
+            Interface for user info from the API.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUser.Profile">
+            <summary>
+            The profile information about this user.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUser.Organization">
+            <summary>
+            The current <see cref="T:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo"/> of the organization this user is currently member of.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.User.StarCitizenUser">
+            <summary>
+            Implementation of a default <see cref="T:StarCitizenAPIWrapper.Models.User.IUser"/>.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.StarCitizenUser.Profile">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.StarCitizenUser.Organization">
+            <inheritdoc />
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo">
+            <summary>
+            The information about a organization a user is currently member of.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo.Image">
+            <summary>
+            The image URL of the organization image.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo.Name">
+            <summary>
+            The name of the organization.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo.Rank">
+            <summary>
+            The rank of the user inside this organization.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.UserOrganizationInfo.Sid">
+            <summary>
+            The SID of the organization.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.User.IUserProfile">
+            <summary>
+            Information about the user profile.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserProfile.Badge">
+            <summary>
+            The current badge of the user.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserProfile.BadgeImage">
+            <summary>
+            The url to the image of the <see cref="P:StarCitizenAPIWrapper.Models.User.IUserProfile.Badge"/>.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserProfile.Display">
+            <summary>
+            The display name of this user.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserProfile.Enlisted">
+            <summary>
+            The datetime when this user enlisted.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserProfile.Fluency">
+            <summary>
+            The languages this user is fluent in.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserProfile.Handle">
+            <summary>
+            The handle of this user.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserProfile.Id">
+            <summary>
+            The id of this user.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserProfile.Image">
+            <summary>
+            The url of the image of this user.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.User.IUserProfile.Page">
+            <summary>
+            The information about the user page.
+            </summary>
+        </member>
+    </members>
+</doc>
