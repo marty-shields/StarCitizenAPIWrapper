@@ -26,5 +26,12 @@
             Creates one if there isn't a current instance.
             </summary>
         </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetUser(System.String)">
+            <summary>
+            Sends an API request for user information.
+            </summary>
+            <param name="handle">The handle of the requested user.</param>
+            <returns>An instance of <see cref="T:StarCitizenAPIWrapper.Models.User.IUser"/> containing the information about the requested user.</returns>
+        </member>
     </members>
 </doc>

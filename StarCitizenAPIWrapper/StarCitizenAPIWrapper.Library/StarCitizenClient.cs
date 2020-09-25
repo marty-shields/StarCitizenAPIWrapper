@@ -1,10 +1,23 @@
-﻿namespace StarCitizenAPIWrapper.Library
+﻿using System;
+using System.Data;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using StarCitizenAPIWrapper.Models.User;
+
+namespace StarCitizenAPIWrapper.Library
 {
     /// <summary>
     /// Client to connect to the Star Citizen API.
     /// </summary>
     public class StarCitizenClient
     {
+        #region const variables
+
+        private const string ApiRequestUrl = "https://starcitizen-api.com/{0}/v1/eager/{1}";
+
+        #endregion
+
         #region Static Instances
 
         /// <summary>
@@ -41,6 +54,27 @@
         public static StarCitizenClient GetClient()
         {
             return _currentClient ?? (_currentClient = new StarCitizenClient(""));
+        }
+
+        #endregion
+
+        #region public methods
+        /// <summary>
+        /// Sends an API request for user information.
+        /// </summary>
+        /// <param name="handle">The handle of the requested user.</param>
+        /// <returns>An instance of <see cref="IUser"/> containing the information about the requested user.</returns>
+        public async Task<IUser> GetUser(string handle)
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"user/{handle}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if(!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            return new StarCitizenUser();
         }
 
         #endregion

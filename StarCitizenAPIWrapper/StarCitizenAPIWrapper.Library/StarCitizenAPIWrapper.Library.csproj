@@ -2,11 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>E:\Git\StarCitizenAPIWrapper\StarCitizenAPIWrapper\StarCitizenAPIWrapper.Library\StarCitizenAPIWrapper.Library.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StarCitizenAPIWrapper.Models\StarCitizenAPIWrapper.Models.csproj" />
+  </ItemGroup>
 
 </Project>
