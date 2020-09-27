@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>E:\Git\StarCitizenAPIWrapper\StarCitizenAPIWrapper\StarCitizenAPIWrapper.Library\StarCitizenAPIWrapper.Library.xml</DocumentationFile>
+    <DocumentationFile>StarCitizenAPIWrapper.Library.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
