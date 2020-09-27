@@ -39,6 +39,12 @@
             </summary>
             <param name="sid">The SID of the organization</param>
         </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetOrganizationMembers(System.String)">
+            <summary>
+            Sends an API request for members of an organization.
+            </summary>
+            <param name="sid">The SID of the organization.</param>
+        </member>
         <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseUserProfile(Newtonsoft.Json.Linq.JToken)">
             <summary>
             Parses the given profile json into a <see cref="T:StarCitizenAPIWrapper.Models.User.IUserProfile"/>.

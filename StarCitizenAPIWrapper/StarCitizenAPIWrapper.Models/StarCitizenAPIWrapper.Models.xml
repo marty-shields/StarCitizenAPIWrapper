@@ -177,6 +177,64 @@
             The different types of organizations
             </summary>
         </member>
+        <member name="T:StarCitizenAPIWrapper.Models.Organization.Members.Implementations.StarCitizenOrganizationMember">
+            <summary>
+            The default implementation of a <see cref="T:StarCitizenAPIWrapper.Models.Organization.Members.IOrganizationMember"/>.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.Implementations.StarCitizenOrganizationMember.Display">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.Implementations.StarCitizenOrganizationMember.Handle">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.Implementations.StarCitizenOrganizationMember.Image">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.Implementations.StarCitizenOrganizationMember.Rank">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.Implementations.StarCitizenOrganizationMember.Stars">
+            <inheritdoc />
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.Implementations.StarCitizenOrganizationMember.Roles">
+            <inheritdoc />
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.Organization.Members.IOrganizationMember">
+            <summary>
+            Interface for organization member info from the API.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.IOrganizationMember.Display">
+            <summary>
+            Display name of this organization member.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.IOrganizationMember.Handle">
+            <summary>
+            Handle of this organization member.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.IOrganizationMember.Image">
+            <summary>
+            Image URL of this organization member.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.IOrganizationMember.Rank">
+            <summary>
+            Rank of this member in the organization
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.IOrganizationMember.Stars">
+            <summary>
+            Amount of stars this member has.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Members.IOrganizationMember.Roles">
+            <summary>
+            Roles this member has.
+            </summary>
+        </member>
         <member name="T:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUser">
             <summary>
             Implementation of a default <see cref="T:StarCitizenAPIWrapper.Models.User.IUser"/>.

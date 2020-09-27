@@ -13,6 +13,8 @@ using Newtonsoft.Json.Serialization;
 using StarCitizenAPIWrapper.Models.Attributes;
 using StarCitizenAPIWrapper.Models.Organization;
 using StarCitizenAPIWrapper.Models.Organization.Implementations;
+using StarCitizenAPIWrapper.Models.Organization.Members;
+using StarCitizenAPIWrapper.Models.Organization.Members.Implementations;
 using StarCitizenAPIWrapper.Models.User;
 using StarCitizenAPIWrapper.Models.User.Implementations;
 
@@ -26,6 +28,7 @@ namespace StarCitizenAPIWrapper.Library
         #region const variables
 
         private const string ApiRequestUrl = "https://api.starcitizen-api.com/{0}/v1/eager/{1}";
+        private const string ApiLiveRequestUrl = "https://api.starcitizen-api.com/{0}/v1/live/{1}";
 
         #endregion
 
@@ -165,7 +168,7 @@ namespace StarCitizenAPIWrapper.Library
                     }
                     case nameof(IOrganization.Members):
                     {
-                        if(int.TryParse(data?["members"]?.ToString(), out var members))
+                        if (int.TryParse(data?["members"]?.ToString(), out var members))
                             propertyInfo.SetValue(org, members);
 
                         break;
@@ -194,6 +197,71 @@ namespace StarCitizenAPIWrapper.Library
             }
 
             return org;
+        }
+
+        /// <summary>
+        /// Sends an API request for members of an organization.
+        /// </summary>
+        /// <param name="sid">The SID of the organization.</param>
+        public async Task<List<IOrganizationMember>> GetOrganizationMembers(string sid)
+        {
+            var requestUrl = string.Format(ApiLiveRequestUrl, _apiKey, $"organization_members/{sid}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)?["data"];
+
+            var members = new List<IOrganizationMember>();
+            var memberJsonArray = data as JArray;
+            foreach (var memberJson in memberJsonArray!)
+            {
+                var member = new StarCitizenOrganizationMember();
+                foreach (var propertyInfo in typeof(IOrganizationMember).GetProperties())
+                {
+                    var currentValue = memberJson?[propertyInfo.Name.ToLower()];
+                    var attributes = propertyInfo.GetCustomAttributes(true);
+
+                    switch (propertyInfo.Name)
+                    {
+                        case nameof(IOrganizationMember.Roles):
+                        {
+                            var roles = memberJson?["roles"] as JArray;
+                            var roleList = roles?.Select(x => x.ToString()).ToArray();
+
+                            propertyInfo.SetValue(member, roleList);
+                            break;
+                        }
+                        default:
+                        {
+                            if (attributes.Any(x => x is ApiNameAttribute))
+                            {
+                                var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
+                                currentValue = memberJson?[nameAttribute?.Name!];
+                            }
+
+                            if (propertyInfo.PropertyType == typeof(int)
+                                && int.TryParse(currentValue?.ToString(), out var intResult))
+                            {
+                                propertyInfo.SetValue(member, intResult);
+                            }
+                            else
+                            {
+                                propertyInfo.SetValue(member, currentValue?.ToString());
+                            }
+
+
+                            break;
+                        }
+                    }
+                }
+
+                members.Add(member);
+            }
+
+            return members;
         }
 
     #endregion
