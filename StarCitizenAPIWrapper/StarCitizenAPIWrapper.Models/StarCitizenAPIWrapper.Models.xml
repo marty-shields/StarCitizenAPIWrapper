@@ -25,7 +25,7 @@
             The default implementation of <see cref="T:StarCitizenAPIWrapper.Models.Organization.IOrganization"/>.
             </summary>
         </member>
-        <member name="P:StarCitizenAPIWrapper.Models.Organization.Implementations.StarCitizenOrganization.Archetypes">
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.Implementations.StarCitizenOrganization.Archetype">
             <inheritdoc />
         </member>
         <member name="P:StarCitizenAPIWrapper.Models.Organization.Implementations.StarCitizenOrganization.Banner">
@@ -72,7 +72,7 @@
             Interface for organization info from the API.
             </summary>
         </member>
-        <member name="P:StarCitizenAPIWrapper.Models.Organization.IOrganization.Archetypes">
+        <member name="P:StarCitizenAPIWrapper.Models.Organization.IOrganization.Archetype">
             <summary>
             The type of this organization.
             </summary>

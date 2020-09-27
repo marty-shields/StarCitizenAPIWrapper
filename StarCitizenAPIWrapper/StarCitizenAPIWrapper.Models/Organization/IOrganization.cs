@@ -11,7 +11,7 @@ namespace StarCitizenAPIWrapper.Models.Organization
         /// <summary>
         /// The type of this organization.
         /// </summary>
-        Archetypes Archetypes { get; set; }
+        Archetypes Archetype { get; set; }
         /// <summary>
         /// The banner url of this organization.
         /// </summary>

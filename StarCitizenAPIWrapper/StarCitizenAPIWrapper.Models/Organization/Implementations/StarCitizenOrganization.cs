@@ -6,7 +6,7 @@
     public class StarCitizenOrganization : IOrganization
     {
         /// <inheritdoc />
-        public Archetypes Archetypes { get; set; }
+        public Archetypes Archetype { get; set; }
         /// <inheritdoc />
         public string Banner { get; set; }
         /// <inheritdoc />

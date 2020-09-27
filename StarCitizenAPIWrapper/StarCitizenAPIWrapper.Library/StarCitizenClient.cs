@@ -114,7 +114,10 @@ namespace StarCitizenAPIWrapper.Library
 
             var content = await response.Content.ReadAsStringAsync();
 
-            var data = JObject.Parse(content);
+            var data = JObject.Parse(content)?["data"];
+
+            var org = new StarCitizenOrganization();
+
             foreach (var propertyInfo in typeof(IOrganization).GetProperties())
             {
                 var currentValue = data?[propertyInfo.Name.ToLower()];
@@ -122,30 +125,73 @@ namespace StarCitizenAPIWrapper.Library
 
                 switch (propertyInfo.Name)
                 {
-                    case nameof(IOrganization.Archetypes):
+                    case nameof(IOrganization.Archetype):
                     {
+                        if (!Enum.TryParse(currentValue?.ToString(), out Archetypes type))
+                            break;
+
+                        propertyInfo.SetValue(org, type);
+
                         break;
                     }
                     case nameof(IOrganization.Focus):
                     {
+                        var focus = new Focus();
+                        var primary = data?["focus"]?["primary"];
+                        var secondary = data?["focus"]?["secondary"];
+
+                        focus.PrimaryFocusImage = primary?["image"]?.ToString();
+                        focus.SecondaryFocusImage = secondary?["image"]?.ToString();
+
+                        if (Enum.TryParse(primary?["name"]?.ToString(), out FocusTypes focusType))
+                            focus.PrimaryFocus = focusType;
+
+                        if (Enum.TryParse(secondary?["name"]?.ToString(), out focusType))
+                            focus.SecondaryFocus = focusType;
+
+                        propertyInfo.SetValue(org, focus);
+
                         break;
                     }
                     case nameof(IOrganization.Headline):
                     {
+                        var headlineInfo = data?["headline"];
+                        var html = headlineInfo?["html"]?.ToString();
+                        var plainText = headlineInfo?["plaintext"]?.ToString();
+
+                        propertyInfo.SetValue(org, (html, plainText));
+
                         break;
                     }
                     case nameof(IOrganization.Members):
                     {
+                        if(int.TryParse(data?["members"]?.ToString(), out var members))
+                            propertyInfo.SetValue(org, members);
+
                         break;
                     }
                     default:
                     {
+                        if (attributes.Any(x => x is ApiNameAttribute))
+                        {
+                            var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
+                            currentValue = data?[nameAttribute?.Name!];
+                        }
+
+                        if (propertyInfo.PropertyType == typeof(bool)
+                            && bool.TryParse(currentValue?.ToString(), out var boolResult))
+                        {
+                            propertyInfo.SetValue(org, boolResult);
+                        }
+                        else
+                        {
+                            propertyInfo.SetValue(org, currentValue?.ToString());
+                        }
+
                         break;
                     }
                 }
             }
-
-            var org = new StarCitizenOrganization();
 
             return org;
         }
