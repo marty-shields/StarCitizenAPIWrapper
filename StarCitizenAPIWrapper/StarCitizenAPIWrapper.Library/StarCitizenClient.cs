@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Resources;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading.Tasks;
@@ -32,6 +33,7 @@ namespace StarCitizenAPIWrapper.Library
 
         private const string ApiRequestUrl = "https://api.starcitizen-api.com/{0}/v1/eager/{1}";
         private const string ApiLiveRequestUrl = "https://api.starcitizen-api.com/{0}/v1/live/{1}";
+        private const string ApiCacheRequestUrl = "https://api.starcitizen-api.com/{0}/v1/cache/{1}";
 
         #endregion
 
@@ -292,7 +294,18 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         public async Task<List<IShip>> GetShips(ShipRequest request)
         {
-            throw new NotImplementedException();
+            var requestUrl = string.Format(ApiCacheRequestUrl, _apiKey, $"/ships?{string.Join("&", request.RequestParameters)}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if(!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)?["data"];
+
+            var ships = new List<IShip>();
+
+            return ships;
         }
 
     #endregion

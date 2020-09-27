@@ -4,6 +4,95 @@
         <name>StarCitizenAPIWrapper.Library</name>
     </assembly>
     <members>
+        <member name="T:StarCitizenAPIWrapper.Library.ShipRequest">
+            <summary>
+            A complete request for the api about specific ships.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Library.ShipRequest.RequestParameters">
+            <summary>
+            Array of parameters for the api request.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Library.ShipRequestBuilder">
+            <summary>
+            A builder class to help creating a request for specific ships.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.AddClassification(System.String)">
+            <summary>
+            Adds the specified classification to the request.
+            </summary>
+            <param name="classification">The classification to be added.</param>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithName(System.String)">
+            <summary>
+            Sets the name of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithLengthMin(System.Int32)">
+            <summary>
+            Sets the minimal length of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithLengthMax(System.Int32)">
+            <summary>
+            Sets the maximal length of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithCrewMin(System.Int32)">
+            <summary>
+            Sets the minimal amount of crew members of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithCrewMax(System.Int32)">
+            <summary>
+            Sets the maximal amount of crew members of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithPriceMin(System.Int32)">
+            <summary>
+            Sets the minimal price of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithPriceMax(System.Int32)">
+            <summary>
+            Sets the maximal price of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithMassMin(System.Int32)">
+            <summary>
+            Sets the minimal mass of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithMassMax(System.Int32)">
+            <summary>
+            Sets the maximal mass of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithPageMax(System.Int32)">
+            <summary>
+            Sets the maximal pages on the RSI website of the ships to search with the specified parameters.
+            <remarks>
+            Careful that per page it takes around 15 seconds to process those results.
+            </remarks>
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.WithId(System.Int32)">
+            <summary>
+            Sets the id of the ship to search
+            <remarks>
+            This works only with the cached database
+            because its the id of the API database.
+            </remarks>
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.ShipRequestBuilder.Build">
+            <summary>
+            Builds the configured request for the api.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:StarCitizenAPIWrapper.Library.StarCitizenClient">
             <summary>
             Client to connect to the Star Citizen API.
@@ -50,6 +139,11 @@
             Sends an API request for current existing versions.
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetShips(StarCitizenAPIWrapper.Library.ShipRequest)">
+            <summary>
+            Sends an API request for the ships within the specified parameters.
+            </summary>
         </member>
         <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseUserProfile(Newtonsoft.Json.Linq.JToken)">
             <summary>

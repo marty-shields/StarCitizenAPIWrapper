@@ -18,7 +18,9 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
                 .Build();
 
             var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
-            var result = await client.GetVersions();
+
+            var shipBuilder = new ShipRequestBuilder().WithName("m50");
+            var result = await client.GetShips(shipBuilder.Build());
         }
     }
 }
