@@ -11,6 +11,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using StarCitizenAPIWrapper.Models.Attributes;
+using StarCitizenAPIWrapper.Models.Organization;
+using StarCitizenAPIWrapper.Models.Organization.Implementations;
 using StarCitizenAPIWrapper.Models.User;
 using StarCitizenAPIWrapper.Models.User.Implementations;
 
@@ -33,6 +35,7 @@ namespace StarCitizenAPIWrapper.Library
         /// The current <see cref="StarCitizenClient"/> instance.
         /// </summary>
         private static StarCitizenClient _currentClient;
+
         #endregion
 
         #region private fields
@@ -68,6 +71,7 @@ namespace StarCitizenAPIWrapper.Library
         #endregion
 
         #region public methods
+
         /// <summary>
         /// Sends an API request for user information.
         /// </summary>
@@ -78,7 +82,7 @@ namespace StarCitizenAPIWrapper.Library
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"user/{handle}");
             using var client = new HttpClient();
             var response = await client.GetAsync(requestUrl);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
             var content = await response.Content.ReadAsStringAsync();
@@ -96,7 +100,103 @@ namespace StarCitizenAPIWrapper.Library
             return user;
         }
 
-        #endregion
+        /// <summary>
+        /// Sends an API request for organization information.
+        /// </summary>
+        /// <param name="sid">The SID of the organization</param>
+        public async Task<IOrganization> GetOrganization(string sid)
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"organization/{sid}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            var data = JObject.Parse(content)?["data"];
+
+            var org = new StarCitizenOrganization();
+
+            foreach (var propertyInfo in typeof(IOrganization).GetProperties())
+            {
+                var currentValue = data?[propertyInfo.Name.ToLower()];
+                var attributes = propertyInfo.GetCustomAttributes(true);
+
+                switch (propertyInfo.Name)
+                {
+                    case nameof(IOrganization.Archetype):
+                    {
+                        if (!Enum.TryParse(currentValue?.ToString(), out Archetypes type))
+                            break;
+
+                        propertyInfo.SetValue(org, type);
+
+                        break;
+                    }
+                    case nameof(IOrganization.Focus):
+                    {
+                        var focus = new Focus();
+                        var primary = data?["focus"]?["primary"];
+                        var secondary = data?["focus"]?["secondary"];
+
+                        focus.PrimaryFocusImage = primary?["image"]?.ToString();
+                        focus.SecondaryFocusImage = secondary?["image"]?.ToString();
+
+                        if (Enum.TryParse(primary?["name"]?.ToString(), out FocusTypes focusType))
+                            focus.PrimaryFocus = focusType;
+
+                        if (Enum.TryParse(secondary?["name"]?.ToString(), out focusType))
+                            focus.SecondaryFocus = focusType;
+
+                        propertyInfo.SetValue(org, focus);
+
+                        break;
+                    }
+                    case nameof(IOrganization.Headline):
+                    {
+                        var headlineInfo = data?["headline"];
+                        var html = headlineInfo?["html"]?.ToString();
+                        var plainText = headlineInfo?["plaintext"]?.ToString();
+
+                        propertyInfo.SetValue(org, (html, plainText));
+
+                        break;
+                    }
+                    case nameof(IOrganization.Members):
+                    {
+                        if(int.TryParse(data?["members"]?.ToString(), out var members))
+                            propertyInfo.SetValue(org, members);
+
+                        break;
+                    }
+                    default:
+                    {
+                        if (attributes.Any(x => x is ApiNameAttribute))
+                        {
+                            var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
+                            currentValue = data?[nameAttribute?.Name!];
+                        }
+
+                        if (propertyInfo.PropertyType == typeof(bool)
+                            && bool.TryParse(currentValue?.ToString(), out var boolResult))
+                        {
+                            propertyInfo.SetValue(org, boolResult);
+                        }
+                        else
+                        {
+                            propertyInfo.SetValue(org, currentValue?.ToString());
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            return org;
+        }
+
+    #endregion
 
         #region private helper methods
 
