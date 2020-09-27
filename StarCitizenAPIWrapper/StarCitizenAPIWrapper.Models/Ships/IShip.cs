@@ -114,6 +114,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// The current status of the production of this ship.
         /// </summary>
+        [ApiName("production_status")]
         ProductionStatusTypes ProductionStatus { get; set; }
 
         /// <summary>

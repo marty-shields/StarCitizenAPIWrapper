@@ -319,13 +319,38 @@ namespace StarCitizenAPIWrapper.Library
 
                     switch (propertyInfo.Name)
                     {
-                        // ToDo - other cases with sub items.
                         case nameof(IShip.Media):
                         {
                             var mediaArray = shipAsJson["media"] as JArray;
 
                             propertyInfo.SetValue(ship, mediaArray!.Select(ParseShipMedia).ToArray());
 
+                            break;
+                        }
+                        case nameof(IShip.Size):
+                        {
+                            if(Enum.TryParse(currentValue?.ToString(), true, out ShipSizes sizeResult))
+                                propertyInfo.SetValue(ship, sizeResult);
+
+                            break;
+                        }
+                        case nameof(IShip.Type):
+                        {
+                            if (Enum.TryParse(currentValue?.ToString(), true, out ShipTypes typeResult))
+                                propertyInfo.SetValue(ship, typeResult);
+
+                            break;
+                        }
+                        case nameof(IShip.ProductionStatus):
+                        {
+                            var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
+                            currentValue = shipAsJson[nameAttribute?.Name!];
+
+                            var valueToParse = currentValue?.ToString().Replace("-", "");
+
+                            if(Enum.TryParse(valueToParse, true, out ProductionStatusTypes productionStatusTypeResult))
+                                propertyInfo.SetValue(ship, productionStatusTypeResult);
+                    
                             break;
                         }
                         default:
