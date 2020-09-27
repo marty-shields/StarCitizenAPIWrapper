@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using StarCitizenAPIWrapper.Models.Ships.Compiled;
+using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
 
 namespace StarCitizenAPIWrapper.Models.Ships.Implementations
@@ -19,7 +18,7 @@ namespace StarCitizenAPIWrapper.Models.Ships.Implementations
         /// <inheritdoc />
         public int ChassisId { get; set; }
         /// <inheritdoc />
-        public List<Dictionary<string, Dictionary<string, RsiComponent[]> >> Compiled { get; set; }
+        public string Compiled { get; set; }
         /// <inheritdoc />
         public string Description { get; set; }
         /// <inheritdoc />
@@ -31,7 +30,7 @@ namespace StarCitizenAPIWrapper.Models.Ships.Implementations
         /// <inheritdoc />
         public double Length { get; set; }
         /// <inheritdoc />
-        public string Manufacturer { get; set; }
+        public ShipManufacturer Manufacturer { get; set; }
         /// <inheritdoc />
         public int ManufacturerId { get; set; }
         /// <inheritdoc />

@@ -1,25 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Sockets;
-using System.Resources;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using StarCitizenAPIWrapper.Models.Attributes;
 using StarCitizenAPIWrapper.Models.Organization;
 using StarCitizenAPIWrapper.Models.Organization.Implementations;
 using StarCitizenAPIWrapper.Models.Organization.Members;
 using StarCitizenAPIWrapper.Models.Organization.Members.Implementations;
 using StarCitizenAPIWrapper.Models.Ships;
-using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Implementations;
+using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
 using StarCitizenAPIWrapper.Models.User;
 using StarCitizenAPIWrapper.Models.User.Implementations;
@@ -356,11 +348,33 @@ namespace StarCitizenAPIWrapper.Library
                         }
                         case nameof(IShip.Compiled):
                         {
-                            throw new NotImplementedException();
+                            // TODO - implement the parsing of the compiled information of a ship.
+
+                            break;
                         }
                         case nameof(IShip.Manufacturer):
                         {
+                            var manufacturer = new ShipManufacturer();
 
+                            foreach (var property in typeof(ShipManufacturer).GetProperties())
+                            {
+                                var value = currentValue?[property.Name.ToLower()];
+                                var propertyAttributes = property.GetCustomAttributes(true);
+
+                                if (propertyAttributes.Any(x => x is ApiNameAttribute))
+                                {
+                                    var nameAttribute = propertyAttributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
+                                    value = currentValue[nameAttribute?.Name!];
+                                }
+
+                                if (property.PropertyType == typeof(int)
+                                    && int.TryParse(value?.ToString(), out var intResult))
+                                    property.SetValue(manufacturer, intResult);
+                                else
+                                    property.SetValue(manufacturer, value?.ToString());
+                            }
+
+                            propertyInfo.SetValue(ship, manufacturer);
 
                             break;
                         }

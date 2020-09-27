@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using StarCitizenAPIWrapper.Models.Attributes;
-using StarCitizenAPIWrapper.Models.Ships.Compiled;
+using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
 
 namespace StarCitizenAPIWrapper.Models.Ships
@@ -35,7 +34,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// 
         /// </summary>
-        List<Dictionary<string, Dictionary<string, RsiComponent[]>>> Compiled { get; set; }
+        string Compiled { get; set; }
 
         /// <summary>
         /// The description of this ship.
@@ -65,7 +64,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// The manufacturer of this ship.
         /// </summary>
-        string Manufacturer { get; set; }
+        ShipManufacturer Manufacturer { get; set; }
 
         /// <summary>
         /// The id of the manufacturer of this ship.
