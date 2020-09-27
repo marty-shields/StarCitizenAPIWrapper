@@ -235,6 +235,56 @@
             Roles this member has.
             </summary>
         </member>
+        <member name="T:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiComponent">
+            <summary>
+            Information about the avionics of a ship.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiComponent.ComponentClass">
+            <summary>
+            The class of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiComponent.ComponentSize">
+            <summary>
+            The size of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiComponent.Details">
+            <summary>
+            The details of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiComponent.Manufacturer">
+            <summary>
+            The manufacturer of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiComponent.Mounts">
+            <summary>
+            The amount of mounts of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiComponent.Name">
+            <summary>
+            The name of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiComponent.Quantity">
+            <summary>
+            The quantity of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiComponent.Size">
+            <summary>
+            The size of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiComponent.Type">
+            <summary>
+            The type of this component.
+            </summary>
+        </member>
         <member name="T:StarCitizenAPIWrapper.Models.Ships.Implementations.StarCitizenShip">
             <summary>
             The default implementation of <see cref="T:StarCitizenAPIWrapper.Models.Ships.IShip"/>.

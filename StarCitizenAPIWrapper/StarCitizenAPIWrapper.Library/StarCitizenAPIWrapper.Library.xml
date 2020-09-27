@@ -162,5 +162,10 @@
             Parses the given media information into a <see cref="T:StarCitizenAPIWrapper.Models.Ships.Media.ApiMedia"/>.
             </summary>
         </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseShipMediaImage(Newtonsoft.Json.Linq.JToken,Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given media image information into a <see cref="T:StarCitizenAPIWrapper.Models.Ships.Media.ShipMediaImage"/>.
+            </summary>
+        </member>
     </members>
 </doc>

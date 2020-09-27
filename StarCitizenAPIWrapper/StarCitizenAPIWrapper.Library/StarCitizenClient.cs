@@ -18,6 +18,7 @@ using StarCitizenAPIWrapper.Models.Organization.Implementations;
 using StarCitizenAPIWrapper.Models.Organization.Members;
 using StarCitizenAPIWrapper.Models.Organization.Members.Implementations;
 using StarCitizenAPIWrapper.Models.Ships;
+using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Implementations;
 using StarCitizenAPIWrapper.Models.Ships.Media;
 using StarCitizenAPIWrapper.Models.User;
@@ -353,6 +354,16 @@ namespace StarCitizenAPIWrapper.Library
                     
                             break;
                         }
+                        case nameof(IShip.Compiled):
+                        {
+                            throw new NotImplementedException();
+                        }
+                        case nameof(IShip.Manufacturer):
+                        {
+
+
+                            break;
+                        }
                         default:
                         {
                             if (attributes.Any(x => x is ApiNameAttribute))
@@ -470,6 +481,9 @@ namespace StarCitizenAPIWrapper.Library
             return media;
         }
 
+        /// <summary>
+        /// Parses the given media image information into a <see cref="ShipMediaImage"/>.
+        /// </summary>
         private static ShipMediaImage ParseShipMediaImage(JToken shipMediaImageData, JToken sizes)
         {
             var imageMedia = (JProperty)shipMediaImageData;

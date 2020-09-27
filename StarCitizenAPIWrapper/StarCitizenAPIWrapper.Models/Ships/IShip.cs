@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Dynamic;
+using System.Collections.Generic;
 using StarCitizenAPIWrapper.Models.Attributes;
+using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Media;
 
 namespace StarCitizenAPIWrapper.Models.Ships
@@ -34,7 +35,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// 
         /// </summary>
-        string Compiled { get; set; }
+        List<Dictionary<string, Dictionary<string, RsiComponent[]>>> Compiled { get; set; }
 
         /// <summary>
         /// The description of this ship.
