@@ -385,5 +385,23 @@
             The information about the user page.
             </summary>
         </member>
+        <member name="T:StarCitizenAPIWrapper.Models.Version.Implementations.StarCitizenVersion">
+            <summary>
+            The default implementation of <see cref="T:StarCitizenAPIWrapper.Models.Version.IVersion"/>.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Version.Implementations.StarCitizenVersion.Versions">
+            <inheritdoc />
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.Version.IVersion">
+            <summary>
+            Interface for the api information about versions.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Version.IVersion.Versions">
+            <summary>
+            Array of all existing versions
+            </summary>
+        </member>
     </members>
 </doc>

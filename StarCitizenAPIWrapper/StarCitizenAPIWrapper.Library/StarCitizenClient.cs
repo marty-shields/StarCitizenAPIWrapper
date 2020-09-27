@@ -17,6 +17,8 @@ using StarCitizenAPIWrapper.Models.Organization.Members;
 using StarCitizenAPIWrapper.Models.Organization.Members.Implementations;
 using StarCitizenAPIWrapper.Models.User;
 using StarCitizenAPIWrapper.Models.User.Implementations;
+using StarCitizenAPIWrapper.Models.Version;
+using StarCitizenAPIWrapper.Models.Version.Implementations;
 
 namespace StarCitizenAPIWrapper.Library
 {
@@ -262,6 +264,26 @@ namespace StarCitizenAPIWrapper.Library
             }
 
             return members;
+        }
+
+        /// <summary>
+        /// Sends an API request for current existing versions.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IVersion> GetVersions()
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, "versions");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)?["data"];
+
+            var version = new StarCitizenVersion {Versions = ((JArray) data)!.Select(x => x.ToString()).ToArray()};
+
+            return version;
         }
 
     #endregion
