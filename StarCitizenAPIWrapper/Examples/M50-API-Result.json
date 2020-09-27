@@ -1,9 +1,5 @@
 
   {
-    "afterburner_speed": "1345",
-    "beam": "10.0",
-    "cargocapacity": "0",
-    "chassis_id": "9",
     "compiled": {
       "RSIAvionic": {
         "computers": [
@@ -214,11 +210,6 @@
         ]
       }
     },
-    "description": "If you want to get from point A to point B as quickly as possible and with as much style as possible then ORIGIN's M50 is for you. Featuring supercharged engines that counter a tiny weapons loadout, the M50 is a ship for going FAST.",
-    "focus": "Racing",
-    "height": "3.0",
-    "id": "22",
-    "length": "11.0",
     "manufacturer": {
       "code": "ORIG",
       "description": "The BMW of the Star Citizen universe.  Their craft are more expensive, sleeker looking status symbols, maybe more so than they’re worth?  They get numbers instead of names: “Origin 300i,”\"Origin 890 Jump,” “Origin M50 Turbo,” etc.",
@@ -492,9 +483,6 @@
       ],
       "name": "Origin Jumpworks GmbH"
     },
-    "manufacturer_id": "6",
-    "mass": "10580",
-    "max_crew": "1",
     "media": [
       {
         "cover_data": null,

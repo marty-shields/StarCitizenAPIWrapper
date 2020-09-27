@@ -503,6 +503,51 @@
             The different sizes of ships.
             </summary>
         </member>
+        <member name="T:StarCitizenAPIWrapper.Models.Ships.Media.ApiMedia">
+            <summary>
+            Information about the media of a ship from the API.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Media.ApiMedia.SourceName">
+            <summary>
+            The name of the source image.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Media.ApiMedia.SourceUrl">
+            <summary>
+            The url of the source image.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Media.ApiMedia.MediaImages">
+            <summary>
+            The images of the ship media.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.Ships.Media.ShipMediaImage">
+            <summary>
+            Information from the API about a ship media image.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Media.ShipMediaImage.ImageUrl">
+            <summary>
+            The Url of this image.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Media.ShipMediaImage.Height">
+            <summary>
+            The height of this image.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Media.ShipMediaImage.Mode">
+            <summary>
+            The image mode of this image.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Media.ShipMediaImage.Width">
+            <summary>
+            The width of this image.
+            </summary>
+        </member>
         <member name="T:StarCitizenAPIWrapper.Models.User.Implementations.StarCitizenUser">
             <summary>
             Implementation of a default <see cref="T:StarCitizenAPIWrapper.Models.User.IUser"/>.

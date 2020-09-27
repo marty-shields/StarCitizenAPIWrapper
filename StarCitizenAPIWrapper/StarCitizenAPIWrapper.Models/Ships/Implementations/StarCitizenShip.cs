@@ -1,4 +1,5 @@
 ﻿using System;
+using StarCitizenAPIWrapper.Models.Ships.Media;
 
 namespace StarCitizenAPIWrapper.Models.Ships.Implementations
 {
@@ -36,7 +37,7 @@ namespace StarCitizenAPIWrapper.Models.Ships.Implementations
         /// <inheritdoc />
         public int MaxCrew { get; set; }
         /// <inheritdoc />
-        public string[] Media { get; set; }
+        public ApiMedia[] Media { get; set; }
         /// <inheritdoc />
         public int MinCrew { get; set; }
         /// <inheritdoc />

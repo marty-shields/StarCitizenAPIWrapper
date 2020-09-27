@@ -152,5 +152,15 @@
             <param name="profileData">The <see cref="T:Newtonsoft.Json.Linq.JToken"/> containing the profile information.</param>
             <returns>A new instance of <see cref="T:StarCitizenAPIWrapper.Models.User.IUserProfile"/> containing the parsed information.</returns>
         </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseUserOrganizationInfo(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given organization information of a user into a <see cref="T:StarCitizenAPIWrapper.Models.User.IUserOrganizationInfo"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseShipMedia(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given media information into a <see cref="T:StarCitizenAPIWrapper.Models.Ships.Media.ApiMedia"/>.
+            </summary>
+        </member>
     </members>
 </doc>

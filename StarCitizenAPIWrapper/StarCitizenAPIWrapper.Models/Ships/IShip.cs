@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Dynamic;
 using StarCitizenAPIWrapper.Models.Attributes;
+using StarCitizenAPIWrapper.Models.Ships.Media;
 
 namespace StarCitizenAPIWrapper.Models.Ships
 {
@@ -83,7 +84,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// Array of urls of images for this ship.
         /// </summary>
-        string[] Media { get; set; }
+        ApiMedia[] Media { get; set; }
 
         /// <summary>
         /// The minimal amount of crew members for this ship.

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Resources;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -18,6 +19,7 @@ using StarCitizenAPIWrapper.Models.Organization.Members;
 using StarCitizenAPIWrapper.Models.Organization.Members.Implementations;
 using StarCitizenAPIWrapper.Models.Ships;
 using StarCitizenAPIWrapper.Models.Ships.Implementations;
+using StarCitizenAPIWrapper.Models.Ships.Media;
 using StarCitizenAPIWrapper.Models.User;
 using StarCitizenAPIWrapper.Models.User.Implementations;
 using StarCitizenAPIWrapper.Models.Version;
@@ -318,6 +320,14 @@ namespace StarCitizenAPIWrapper.Library
                     switch (propertyInfo.Name)
                     {
                         // ToDo - other cases with sub items.
+                        case nameof(IShip.Media):
+                        {
+                            var mediaArray = shipAsJson["media"] as JArray;
+
+                            propertyInfo.SetValue(ship, mediaArray!.Select(ParseShipMedia).ToArray());
+
+                            break;
+                        }
                         default:
                         {
                             if (attributes.Any(x => x is ApiNameAttribute))
@@ -326,9 +336,15 @@ namespace StarCitizenAPIWrapper.Library
                                 currentValue = shipAsJson[nameAttribute?.Name!];
                             }
 
-                            // ToDo - escape types.
+                            if (propertyInfo.PropertyType == typeof(int)
+                                && int.TryParse(currentValue?.ToString(), out var intResult))
+                                propertyInfo.SetValue(ship, intResult);
+                            else if (propertyInfo.PropertyType == typeof(double)
+                                     && double.TryParse(currentValue?.ToString(), out var doubleResult))
+                                propertyInfo.SetValue(ship, doubleResult);
+                            else
+                                propertyInfo.SetValue(ship, currentValue?.ToString());
 
-                            propertyInfo.SetValue(ship, currentValue?.ToString());
                             break;
                         }
                     }
@@ -393,6 +409,9 @@ namespace StarCitizenAPIWrapper.Library
             return userProfile;
         }
 
+        /// <summary>
+        /// Parses the given organization information of a user into a <see cref="IUserOrganizationInfo"/>.
+        /// </summary>
         private static IUserOrganizationInfo ParseUserOrganizationInfo(JToken userOrganizationData)
         {
             var organizationData = new UserOrganizationInfo();
@@ -404,6 +423,41 @@ namespace StarCitizenAPIWrapper.Library
             }
 
             return organizationData;
+        }
+
+        /// <summary>
+        /// Parses the given media information into a <see cref="ApiMedia"/>.
+        /// </summary>
+        private static ApiMedia ParseShipMedia(JToken shipMediaData)
+        {
+            var media = new ApiMedia
+            {
+                SourceName = shipMediaData["source_name"]?.ToString(),
+                SourceUrl = shipMediaData["source_url"]?.ToString()
+            };
+
+            var sizes = shipMediaData["derived_data"]?["sizes"];
+
+            var mediaList = (from JToken jToken in shipMediaData["images"]?.Children()! select ParseShipMediaImage(jToken, sizes)).ToList();
+
+            media.MediaImages = mediaList;
+
+            return media;
+        }
+
+        private static ShipMediaImage ParseShipMediaImage(JToken shipMediaImageData, JToken sizes)
+        {
+            var imageMedia = (JProperty)shipMediaImageData;
+            var newImage = new ShipMediaImage { ImageUrl = imageMedia.Value.ToString() };
+            var matchingSize = sizes?[imageMedia.Name];
+            if (int.TryParse(matchingSize?["height"]?.ToString(), out var intResult))
+                newImage.Height = intResult;
+            if (int.TryParse(matchingSize?["width"]?.ToString(), out intResult))
+                newImage.Width = intResult;
+
+            newImage.Mode = matchingSize?["mode"]?.ToString();
+
+            return newImage;
         }
 
         #endregion
