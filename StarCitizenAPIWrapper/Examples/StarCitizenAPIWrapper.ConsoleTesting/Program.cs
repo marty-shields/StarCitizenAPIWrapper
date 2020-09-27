@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using StarCitizenAPIWrapper.Library;
 
 namespace StarCitizenAPIWrapper.ConsoleTesting
@@ -12,7 +13,11 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
 
         static async Task MainAsync()
         {
-            var client = StarCitizenClient.GetClient("12794c6b066ad75b4f73c1134ac62788");
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
             var org = await client.GetOrganizationMembers("GRI");
         }
     }
