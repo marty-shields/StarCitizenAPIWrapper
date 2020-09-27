@@ -18,7 +18,7 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
                 .Build();
 
             var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
-            var org = await client.GetOrganizationMembers("GRI");
+            var result = await client.GetVersions();
         }
     }
 }
