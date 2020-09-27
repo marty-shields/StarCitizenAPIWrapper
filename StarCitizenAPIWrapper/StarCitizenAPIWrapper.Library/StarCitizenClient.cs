@@ -15,6 +15,7 @@ using StarCitizenAPIWrapper.Models.Organization;
 using StarCitizenAPIWrapper.Models.Organization.Implementations;
 using StarCitizenAPIWrapper.Models.Organization.Members;
 using StarCitizenAPIWrapper.Models.Organization.Members.Implementations;
+using StarCitizenAPIWrapper.Models.Ships;
 using StarCitizenAPIWrapper.Models.User;
 using StarCitizenAPIWrapper.Models.User.Implementations;
 using StarCitizenAPIWrapper.Models.Version;
@@ -284,6 +285,14 @@ namespace StarCitizenAPIWrapper.Library
             var version = new StarCitizenVersion {Versions = ((JArray) data)!.Select(x => x.ToString()).ToArray()};
 
             return version;
+        }
+
+        /// <summary>
+        /// Sends an API request for the ships within the specified parameters.
+        /// </summary>
+        public async Task<List<IShip>> GetShips(ShipRequest request)
+        {
+            throw new NotImplementedException();
         }
 
     #endregion
