@@ -17,6 +17,7 @@ using StarCitizenAPIWrapper.Models.Organization.Implementations;
 using StarCitizenAPIWrapper.Models.Organization.Members;
 using StarCitizenAPIWrapper.Models.Organization.Members.Implementations;
 using StarCitizenAPIWrapper.Models.Ships;
+using StarCitizenAPIWrapper.Models.Ships.Implementations;
 using StarCitizenAPIWrapper.Models.User;
 using StarCitizenAPIWrapper.Models.User.Implementations;
 using StarCitizenAPIWrapper.Models.Version;
@@ -304,6 +305,35 @@ namespace StarCitizenAPIWrapper.Library
             var data = JObject.Parse(content)?["data"];
 
             var ships = new List<IShip>();
+
+            var shipsAsJson = data as JArray;
+            foreach (var shipAsJson in shipsAsJson!)
+            {
+                var ship = new StarCitizenShip();
+                foreach (var propertyInfo in typeof(IShip).GetProperties())
+                {
+                    var currentValue = shipAsJson[propertyInfo.Name.ToLower()];
+                    var attributes = propertyInfo.GetCustomAttributes(true);
+
+                    switch (propertyInfo.Name)
+                    {
+                        // ToDo - other cases with sub items.
+                        default:
+                        {
+                            if (attributes.Any(x => x is ApiNameAttribute))
+                            {
+                                var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
+                                currentValue = shipAsJson[nameAttribute?.Name!];
+                            }
+
+                            // ToDo - escape types.
+
+                            propertyInfo.SetValue(ship, currentValue?.ToString());
+                            break;
+                        }
+                    }
+                }
+            }
 
             return ships;
         }
