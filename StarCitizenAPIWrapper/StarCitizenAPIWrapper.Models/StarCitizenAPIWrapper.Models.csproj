@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <Description>Helper library for the StarCitizenAPIWrapper package</Description>
+    <RepositoryUrl>https://github.com/TheAnachronism/StarCitizenAPIWrapper</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/TheAnachronism/StarCitizenAPIWrapper</PackageProjectUrl>
+    <Authors>TheAnachronism</Authors>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
