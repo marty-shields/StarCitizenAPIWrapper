@@ -348,3 +348,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Custom ignores
+/StarCitizenAPIWrapper/StarCitizenAPIWrapper.Library/StarCitizenAPIWrapper.Library.xml
+/StarCitizenAPIWrapper/StarCitizenAPIWrapper.Models/StarCitizenAPIWrapper.Models.xml
