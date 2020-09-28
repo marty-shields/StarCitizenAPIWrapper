@@ -349,45 +349,7 @@ namespace StarCitizenAPIWrapper.Library
                         }
                         case nameof(IShip.Compiled):
                         {
-                            var compiled = new List<KeyValuePair<ShipCompiledClasses, List<KeyValuePair<string, RsiShipComponent>>>>();
-
-                            var shipComponentGroups = currentValue?.Children();
-                            foreach (var shipComponentGroupJson in shipComponentGroups!)
-                            {
-                                var shipComponentGroup = shipComponentGroupJson as JProperty;
-                                var componentTypes = shipComponentGroup.First.Children();
-
-                                var components = new List<KeyValuePair<string, RsiShipComponent>>();
-
-                                foreach (var componentTypeJson in componentTypes)
-                                {
-                                    var componentType = componentTypeJson as JProperty;
-
-                                    var componentsOfCurrentType = componentTypeJson.First.Children();
-
-                                    foreach (var componentOfCurrentType in componentsOfCurrentType)
-                                    {
-                                        var rsiComponent = new RsiShipComponent
-                                        {
-                                            Name = componentOfCurrentType["name"]?.ToString(),
-                                            Class = componentOfCurrentType["component_class"]?.ToString(),
-                                            Details = componentOfCurrentType["details"]?.ToString(),
-                                            Manufacturer = componentOfCurrentType["manufacturer"]?.ToString(),
-                                            Mounts = int.Parse(componentOfCurrentType["mounts"]?.ToString()),
-                                            Quantity = int.Parse(componentOfCurrentType["quantity"]?.ToString()),
-                                            Size = componentOfCurrentType["size"]?.ToString(),
-                                            Type = componentOfCurrentType["type"]?.ToString()
-                                        };
-
-                                        components.Add(new KeyValuePair<string, RsiShipComponent>(componentType.Name, rsiComponent));
-                                    }
-                                }
-
-                                var shipComponentClass = (ShipCompiledClasses)Enum.Parse(typeof(ShipCompiledClasses), shipComponentGroup.Name);
-                                compiled.Add(new KeyValuePair<ShipCompiledClasses, List<KeyValuePair<string, RsiShipComponent>>>(shipComponentClass, components));
-                            }
-
-                            propertyInfo.SetValue(ship, compiled);
+                            propertyInfo.SetValue(ship, ParseShipCompiled(currentValue));
 
                             break;
                         }
@@ -565,9 +527,59 @@ namespace StarCitizenAPIWrapper.Library
         /// <summary>
         /// Parses the given compiled information of a ship into a 
         /// </summary>
-        private static void ParseShipCompiled(JToken currentValue)
+        private static List<KeyValuePair<ShipCompiledClasses, List<KeyValuePair<string, RsiShipComponent>>>> ParseShipCompiled(JToken currentValue)
         {
+            var compiled = new List<KeyValuePair<ShipCompiledClasses, List<KeyValuePair<string, RsiShipComponent>>>>();
 
+            var shipComponentGroups = currentValue!.Children();
+            foreach (var shipComponentGroupJson in shipComponentGroups!)
+            {
+                var shipComponentGroup = shipComponentGroupJson as JProperty;
+                var componentTypes = shipComponentGroup!.First!.Children();
+
+
+                var shipComponentClass = (ShipCompiledClasses)Enum.Parse(typeof(ShipCompiledClasses), shipComponentGroup.Name);
+                compiled.Add(
+                    new KeyValuePair<ShipCompiledClasses, List<KeyValuePair<string, RsiShipComponent>>>(
+                        shipComponentClass, ParseShipComponents(componentTypes)));
+            }
+
+            return compiled;
+        }
+
+        /// <summary>
+        /// Parses the given component types into a list of ship components.
+        /// </summary>
+        private static List<KeyValuePair<string, RsiShipComponent>> ParseShipComponents(
+            JEnumerable<JToken> componentTypes)
+        {
+            var components = new List<KeyValuePair<string, RsiShipComponent>>();
+
+            foreach (var componentTypeJson in componentTypes)
+            {
+                var componentType = componentTypeJson as JProperty;
+
+                var componentsOfCurrentType = componentTypeJson!.First!.Children();
+
+                foreach (var componentOfCurrentType in componentsOfCurrentType)
+                {
+                    var rsiComponent = new RsiShipComponent
+                    {
+                        Name = componentOfCurrentType["name"]?.ToString(),
+                        Class = componentOfCurrentType["component_class"]?.ToString(),
+                        Details = componentOfCurrentType["details"]?.ToString(),
+                        Manufacturer = componentOfCurrentType["manufacturer"]?.ToString(),
+                        Mounts = int.Parse(componentOfCurrentType["mounts"]!.ToString()),
+                        Quantity = int.Parse(componentOfCurrentType["quantity"]!.ToString()),
+                        Size = componentOfCurrentType["size"]?.ToString(),
+                        Type = componentOfCurrentType["type"]?.ToString()
+                    };
+
+                    components.Add(new KeyValuePair<string, RsiShipComponent>(componentType!.Name, rsiComponent));
+                }
+            }
+
+            return components;
         }
 
         #endregion
