@@ -367,6 +367,9 @@ namespace StarCitizenAPIWrapper.Library
                                 currentValue = shipAsJson[nameAttribute?.Name!];
                             }
 
+                            if (currentValue?.ToString() == string.Empty)
+                                break;
+
                             if (propertyInfo.PropertyType == typeof(int)
                                 && int.TryParse(currentValue?.ToString(), out var intResult))
                                 propertyInfo.SetValue(ship, intResult);
@@ -380,6 +383,8 @@ namespace StarCitizenAPIWrapper.Library
                         }
                     }
                 }
+
+                ships.Add(ship);
             }
 
             return ships;
