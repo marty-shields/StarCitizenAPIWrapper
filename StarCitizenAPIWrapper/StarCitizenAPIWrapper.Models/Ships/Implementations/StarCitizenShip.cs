@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
 
@@ -18,7 +20,7 @@ namespace StarCitizenAPIWrapper.Models.Ships.Implementations
         /// <inheritdoc />
         public int ChassisId { get; set; }
         /// <inheritdoc />
-        public string Compiled { get; set; }
+        public List<KeyValuePair<ShipCompiledClasses, List<KeyValuePair<string, RsiShipComponent>>>> Compiled { get; set; }
         /// <inheritdoc />
         public string Description { get; set; }
         /// <inheritdoc />

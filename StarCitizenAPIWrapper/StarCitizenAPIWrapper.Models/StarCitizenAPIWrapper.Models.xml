@@ -235,6 +235,51 @@
             Roles this member has.
             </summary>
         </member>
+        <member name="T:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiShipComponent">
+            <summary>
+            The component of a ship.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiShipComponent.Class">
+            <summary>
+            The class of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiShipComponent.Size">
+            <summary>
+            The size of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiShipComponent.Details">
+            <summary>
+            The details of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiShipComponent.Manufacturer">
+            <summary>
+            The manufacturer of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiShipComponent.Mounts">
+            <summary>
+            The amount of mounts this component has.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiShipComponent.Name">
+            <summary>
+            The name of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiShipComponent.Quantity">
+            <summary>
+            The quantity of this component.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Models.Ships.Compiled.RsiShipComponent.Type">
+            <summary>
+            The type of this component.
+            </summary>
+        </member>
         <member name="T:StarCitizenAPIWrapper.Models.Ships.Implementations.StarCitizenShip">
             <summary>
             The default implementation of <see cref="T:StarCitizenAPIWrapper.Models.Ships.IShip"/>.
@@ -501,6 +546,16 @@
         <member name="T:StarCitizenAPIWrapper.Models.Ships.ShipSizes">
             <summary>
             The different sizes of ships.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.Ships.ShipTypes">
+            <summary>
+            The different types of ships.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Models.Ships.ShipCompiledClasses">
+            <summary>
+            The different classes of components of a ship.
             </summary>
         </member>
         <member name="T:StarCitizenAPIWrapper.Models.Ships.Manufacturer.ShipManufacturer">

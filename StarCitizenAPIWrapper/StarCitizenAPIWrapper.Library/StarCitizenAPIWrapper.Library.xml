@@ -167,5 +167,15 @@
             Parses the given media image information into a <see cref="T:StarCitizenAPIWrapper.Models.Ships.Media.ShipMediaImage"/>.
             </summary>
         </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseManufacturer(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given manufacturer information into a <see cref="T:StarCitizenAPIWrapper.Models.Ships.Manufacturer.ShipManufacturer"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseShipCompiled(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given compiled information of a ship into a 
+            </summary>
+        </member>
     </members>
 </doc>

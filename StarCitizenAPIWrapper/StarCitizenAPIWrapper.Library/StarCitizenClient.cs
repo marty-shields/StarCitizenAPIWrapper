@@ -10,6 +10,7 @@ using StarCitizenAPIWrapper.Models.Organization.Implementations;
 using StarCitizenAPIWrapper.Models.Organization.Members;
 using StarCitizenAPIWrapper.Models.Organization.Members.Implementations;
 using StarCitizenAPIWrapper.Models.Ships;
+using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Implementations;
 using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
@@ -348,33 +349,51 @@ namespace StarCitizenAPIWrapper.Library
                         }
                         case nameof(IShip.Compiled):
                         {
-                            // TODO - implement the parsing of the compiled information of a ship.
+                            var compiled = new List<KeyValuePair<ShipCompiledClasses, List<KeyValuePair<string, RsiShipComponent>>>>();
+
+                            var shipComponentGroups = currentValue?.Children();
+                            foreach (var shipComponentGroupJson in shipComponentGroups!)
+                            {
+                                var shipComponentGroup = shipComponentGroupJson as JProperty;
+                                var componentTypes = shipComponentGroup.First.Children();
+
+                                var components = new List<KeyValuePair<string, RsiShipComponent>>();
+
+                                foreach (var componentTypeJson in componentTypes)
+                                {
+                                    var componentType = componentTypeJson as JProperty;
+
+                                    var componentsOfCurrentType = componentTypeJson.First.Children();
+
+                                    foreach (var componentOfCurrentType in componentsOfCurrentType)
+                                    {
+                                        var rsiComponent = new RsiShipComponent
+                                        {
+                                            Name = componentOfCurrentType["name"]?.ToString(),
+                                            Class = componentOfCurrentType["component_class"]?.ToString(),
+                                            Details = componentOfCurrentType["details"]?.ToString(),
+                                            Manufacturer = componentOfCurrentType["manufacturer"]?.ToString(),
+                                            Mounts = int.Parse(componentOfCurrentType["mounts"]?.ToString()),
+                                            Quantity = int.Parse(componentOfCurrentType["quantity"]?.ToString()),
+                                            Size = componentOfCurrentType["size"]?.ToString(),
+                                            Type = componentOfCurrentType["type"]?.ToString()
+                                        };
+
+                                        components.Add(new KeyValuePair<string, RsiShipComponent>(componentType.Name, rsiComponent));
+                                    }
+                                }
+
+                                var shipComponentClass = (ShipCompiledClasses)Enum.Parse(typeof(ShipCompiledClasses), shipComponentGroup.Name);
+                                compiled.Add(new KeyValuePair<ShipCompiledClasses, List<KeyValuePair<string, RsiShipComponent>>>(shipComponentClass, components));
+                            }
+
+                            propertyInfo.SetValue(ship, compiled);
 
                             break;
                         }
                         case nameof(IShip.Manufacturer):
                         {
-                            var manufacturer = new ShipManufacturer();
-
-                            foreach (var property in typeof(ShipManufacturer).GetProperties())
-                            {
-                                var value = currentValue?[property.Name.ToLower()];
-                                var propertyAttributes = property.GetCustomAttributes(true);
-
-                                if (propertyAttributes.Any(x => x is ApiNameAttribute))
-                                {
-                                    var nameAttribute = propertyAttributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
-                                    value = currentValue[nameAttribute?.Name!];
-                                }
-
-                                if (property.PropertyType == typeof(int)
-                                    && int.TryParse(value?.ToString(), out var intResult))
-                                    property.SetValue(manufacturer, intResult);
-                                else
-                                    property.SetValue(manufacturer, value?.ToString());
-                            }
-
-                            propertyInfo.SetValue(ship, manufacturer);
+                            propertyInfo.SetValue(ship, ParseManufacturer(currentValue));
 
                             break;
                         }
@@ -475,6 +494,8 @@ namespace StarCitizenAPIWrapper.Library
             return organizationData;
         }
 
+        #region Parse Ships
+
         /// <summary>
         /// Parses the given media information into a <see cref="ApiMedia"/>.
         /// </summary>
@@ -512,6 +533,44 @@ namespace StarCitizenAPIWrapper.Library
 
             return newImage;
         }
+
+        /// <summary>
+        /// Parses the given manufacturer information into a <see cref="ShipManufacturer"/>.
+        /// </summary>
+        private static ShipManufacturer ParseManufacturer(JToken currentValue)
+        {
+            var manufacturer = new ShipManufacturer();
+
+            foreach (var property in typeof(ShipManufacturer).GetProperties())
+            {
+                var value = currentValue?[property.Name.ToLower()];
+                var propertyAttributes = property.GetCustomAttributes(true);
+
+                if (propertyAttributes.Any(x => x is ApiNameAttribute))
+                {
+                    var nameAttribute = propertyAttributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
+                    value = currentValue?[nameAttribute?.Name!];
+                }
+
+                if (property.PropertyType == typeof(int)
+                    && int.TryParse(value?.ToString(), out var intResult))
+                    property.SetValue(manufacturer, intResult);
+                else
+                    property.SetValue(manufacturer, value?.ToString());
+            }
+
+            return manufacturer;
+        }
+
+        /// <summary>
+        /// Parses the given compiled information of a ship into a 
+        /// </summary>
+        private static void ParseShipCompiled(JToken currentValue)
+        {
+
+        }
+
+        #endregion
 
         #endregion
 

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using StarCitizenAPIWrapper.Models.Attributes;
+using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
 
@@ -34,7 +36,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// 
         /// </summary>
-        string Compiled { get; set; }
+        List<KeyValuePair<ShipCompiledClasses, List<KeyValuePair<string, RsiShipComponent>>>> Compiled { get; set; }
 
         /// <summary>
         /// The description of this ship.
@@ -168,6 +170,8 @@ namespace StarCitizenAPIWrapper.Models.Ships
         double ZAxisAcceleration { get; set; }
     }
 
+    #region Helper enums
+
     /// <summary>
     /// The different types of production status for ships.
     /// </summary>
@@ -192,6 +196,9 @@ namespace StarCitizenAPIWrapper.Models.Ships
         Capital
     }
 
+    /// <summary>
+    /// The different types of ships.
+    /// </summary>
     public enum ShipTypes
     {
         Multi,
@@ -202,6 +209,22 @@ namespace StarCitizenAPIWrapper.Models.Ships
         Support,
         Competition,
         Ground
+
+    }
+
+    /// <summary>
+    /// The different classes of components of a ship.
+    /// </summary>
+    public enum ShipCompiledClasses
+    {
+        RSIAvionic,
+        RSIModular,
+        RSIPropulsion,
+        RSIThruster,
+        RSIWeapon
 #pragma warning restore 1591
     }
+
+    #endregion
+
 }
