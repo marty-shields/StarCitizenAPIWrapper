@@ -19,7 +19,7 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
 
             var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
 
-            var shipBuilder = new ShipRequestBuilder().WithCrewMax(50);
+            var shipBuilder = new ShipRequestBuilder();
             var result = await client.GetShips(shipBuilder.Build());
         }
     }

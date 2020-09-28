@@ -305,10 +305,22 @@ namespace StarCitizenAPIWrapper.Library
             var shipsAsJson = data as JArray;
             foreach (var shipAsJson in shipsAsJson!)
             {
+                if (shipAsJson.ToString() == string.Empty)
+                    continue;
+
                 var ship = new StarCitizenShip();
                 foreach (var propertyInfo in typeof(IShip).GetProperties())
                 {
-                    var currentValue = shipAsJson[propertyInfo.Name.ToLower()];
+                    JToken currentValue;
+                    try
+                    {
+                        currentValue = shipAsJson[propertyInfo.Name.ToLower()];
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
                     var attributes = propertyInfo.GetCustomAttributes(true);
 
                     switch (propertyInfo.Name)
@@ -568,19 +580,31 @@ namespace StarCitizenAPIWrapper.Library
 
                 foreach (var componentOfCurrentType in componentsOfCurrentType)
                 {
-                    var rsiComponent = new RsiShipComponent
+                    try
                     {
-                        Name = componentOfCurrentType["name"]?.ToString(),
-                        Class = componentOfCurrentType["component_class"]?.ToString(),
-                        Details = componentOfCurrentType["details"]?.ToString(),
-                        Manufacturer = componentOfCurrentType["manufacturer"]?.ToString(),
-                        Mounts = int.Parse(componentOfCurrentType["mounts"]!.ToString()),
-                        Quantity = int.Parse(componentOfCurrentType["quantity"]!.ToString()),
-                        Size = componentOfCurrentType["size"]?.ToString(),
-                        Type = componentOfCurrentType["type"]?.ToString()
-                    };
+                        var rsiComponent = new RsiShipComponent
+                        {
+                            Name = componentOfCurrentType["name"]?.ToString(),
+                            Class = componentOfCurrentType["component_class"]?.ToString(),
+                            Details = componentOfCurrentType["details"]?.ToString(),
+                            Manufacturer = componentOfCurrentType["manufacturer"]?.ToString(),
+                            Size = componentOfCurrentType["size"]?.ToString(),
+                            Type = componentOfCurrentType["type"]?.ToString()
+                        };
 
-                    components.Add(new KeyValuePair<string, RsiShipComponent>(componentType!.Name, rsiComponent));
+                        if (int.TryParse(componentOfCurrentType["mounts"]!.ToString(), out var intResult))
+                            rsiComponent.Mounts = intResult;
+
+                        if (int.TryParse(componentOfCurrentType["quantity"]!.ToString(), out intResult))
+                            rsiComponent.Quantity = intResult;
+
+                        components.Add(new KeyValuePair<string, RsiShipComponent>(componentType!.Name, rsiComponent));
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
                 }
             }
 
