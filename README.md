@@ -8,3 +8,6 @@ After asking a developer about it, they told me, that this enpoint was never use
 Because of that I skipped that one. If it should be requested, create an issue and I'll see what I can do.
 
 ## Feel free to constribute via a pull request
+
+## NuGet package
+https://www.nuget.org/packages/StarCitizenAPIWrapper/
