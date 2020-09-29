@@ -489,8 +489,7 @@ namespace StarCitizenAPIWrapper.Library
             var userProfile = new StarCitizenUserProfile();
             foreach (var property in typeof(IUserProfile).GetProperties())
             {
-                var currentValue = profileData?[property.Name.ToLower()];
-                var attributes = property.GetCustomAttributes(true);
+                var currentValue = property.GetCorrectValueFromProperty(profileData);
 
                 switch (property.Name)
                 {
@@ -515,12 +514,6 @@ namespace StarCitizenAPIWrapper.Library
                         }
                     default:
                         {
-                            if (attributes.Any(x => x is ApiNameAttribute))
-                            {
-                                var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
-                                currentValue = profileData?[nameAttribute?.Name!];
-                            }
-
                             property.SetValue(userProfile, currentValue?.ToString());
                             break;
                         }
