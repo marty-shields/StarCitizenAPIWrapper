@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using StarCitizenAPIWrapper.Models.Attributes;
@@ -9,6 +10,7 @@ using StarCitizenAPIWrapper.Models.Organization;
 using StarCitizenAPIWrapper.Models.Organization.Implementations;
 using StarCitizenAPIWrapper.Models.Organization.Members;
 using StarCitizenAPIWrapper.Models.Organization.Members.Implementations;
+using StarCitizenAPIWrapper.Models.RoadMap;
 using StarCitizenAPIWrapper.Models.Ships;
 using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Implementations;
@@ -402,6 +404,76 @@ namespace StarCitizenAPIWrapper.Library
             return ships;
         }
 
+        /// <summary>
+        /// Sends an API request for the roadmap of the given type.
+        /// </summary>
+        public async Task<List<RoadMap>> GetRoadmap(RoadmapTypes roadmapType, string version)
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"roadmap/{roadmapType.ToString().ToLower()}?version={version}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if(!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)["data"] as JArray;
+            
+            var roadmaps =  new List<RoadMap>();
+
+            foreach (var roadmapJson in data!)
+            {
+                var newRoadmap = new RoadMap();
+
+                foreach (var propertyInfo in typeof(RoadMap).GetProperties())
+                {
+                    var currentValue = roadmapJson[propertyInfo.Name.ToLower()];
+                    var attributes = propertyInfo.GetCustomAttributes(true);
+
+                    switch (propertyInfo.Name)
+                    {
+                        case nameof(RoadMap.RoadMapCards):
+                        {
+                            break;
+                        }
+                        case nameof(RoadMap.Released):
+                        {
+                            break;
+                        }
+                        default:
+                        {
+                            if (attributes.Any(x => x is ApiNameAttribute))
+                            {
+                                var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
+                                currentValue = roadmapJson![nameAttribute?.Name!];
+                            }
+
+                            if (currentValue?.ToString() == string.Empty)
+                                continue;
+
+                            if (propertyInfo.PropertyType == typeof(int)
+                                && int.TryParse(currentValue!.ToString(), out var intResult))
+                                propertyInfo.SetValue(newRoadmap, intResult);
+                            else if (propertyInfo.PropertyType == typeof(DateTime))
+                            {
+                                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                                propertyInfo.SetValue(newRoadmap, epoch.AddSeconds(double.Parse(currentValue!.ToString())));
+                            }
+                            else
+                            {
+                                propertyInfo.SetValue(newRoadmap, currentValue?.ToString());
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
+                roadmaps.Add(newRoadmap);
+            }
+
+            return roadmaps;
+        }
+
     #endregion
 
         #region private helper methods
@@ -615,5 +687,16 @@ namespace StarCitizenAPIWrapper.Library
 
         #endregion
 
+    }
+
+    /// <summary>
+    /// The different types of roadmap.
+    /// </summary>
+    public enum RoadmapTypes
+    {
+#pragma warning disable 1591
+        StarCitizen,
+        Squadron42
+#pragma warning restore 1591
     }
 }
