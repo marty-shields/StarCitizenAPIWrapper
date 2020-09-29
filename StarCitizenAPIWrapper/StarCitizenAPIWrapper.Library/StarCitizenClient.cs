@@ -2,13 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using StarCitizenAPIWrapper.Library.Helpers;
 using StarCitizenAPIWrapper.Models.Attributes;
 using StarCitizenAPIWrapper.Models.Organization;
 using StarCitizenAPIWrapper.Models.Organization.Implementations;
 using StarCitizenAPIWrapper.Models.Organization.Members;
 using StarCitizenAPIWrapper.Models.Organization.Members.Implementations;
+using StarCitizenAPIWrapper.Models.RoadMap;
 using StarCitizenAPIWrapper.Models.Ships;
 using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Implementations;
@@ -402,9 +407,77 @@ namespace StarCitizenAPIWrapper.Library
             return ships;
         }
 
+        /// <summary>
+        /// Sends an API request for the roadmap of the given type.
+        /// </summary>
+        public async Task<List<RoadMap>> GetRoadmap(RoadmapTypes roadmapType, string version)
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"roadmap/{roadmapType.ToString().ToLower()}?version={version}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if(!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)["data"] as JArray;
+            
+            var roadmaps =  new List<RoadMap>();
+
+            foreach (var roadmapJson in data!)
+            {
+                var newRoadmap = new RoadMap();
+
+                foreach (var propertyInfo in typeof(RoadMap).GetProperties())
+                {
+                    var currentValue = propertyInfo.GetCorrectValueFromProperty(roadmapJson);
+
+                    switch (propertyInfo.Name)
+                    {
+                        case nameof(RoadMap.RoadMapCards):
+                        {
+                            propertyInfo.SetValue(newRoadmap, ParseRoadmapCards(roadmapJson["cards"]));
+
+                            break;
+                        }
+                        case nameof(RoadMap.Released):
+                        {
+                            propertyInfo.SetValue(newRoadmap, currentValue!.ToString() == "1");
+
+                            break;
+                        }
+                        default:
+                        {
+                            if (currentValue?.ToString() == string.Empty)
+                                continue;
+
+                            if (propertyInfo.PropertyType == typeof(int)
+                                && int.TryParse(currentValue!.ToString(), out var intResult))
+                                propertyInfo.SetValue(newRoadmap, intResult);
+                            else if (propertyInfo.PropertyType == typeof(DateTime))
+                            {
+                                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                                propertyInfo.SetValue(newRoadmap, epoch.AddSeconds(double.Parse(currentValue!.ToString())));
+                            }
+                            else
+                            {
+                                propertyInfo.SetValue(newRoadmap, currentValue?.ToString());
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
+                roadmaps.Add(newRoadmap);
+            }
+
+            return roadmaps;
+        }
+
     #endregion
 
         #region private helper methods
+
 
         /// <summary>
         /// Parses the given profile json into a <see cref="IUserProfile"/>.
@@ -613,7 +686,91 @@ namespace StarCitizenAPIWrapper.Library
 
         #endregion
 
+        #region Parse Roadmap
+
+        /// <summary>
+        /// Parses the given information of roadmap cards into a list of <see cref="RoadMapCard"/>
+        /// </summary>
+        private static List<RoadMapCard> ParseRoadmapCards(JToken cardsAsJson)
+        {
+            var list = new List<RoadMapCard>();
+
+            var array = cardsAsJson as JArray;
+
+            foreach (var cardAsJson in array!)
+            {
+                var card = new RoadMapCard();
+
+                foreach (var propertyInfo in typeof(RoadMapCard).GetProperties())
+                {
+                    var currentValue = propertyInfo.GetCorrectValueFromProperty(cardAsJson);
+
+                    if(currentValue == null)
+                        continue;
+
+                    switch (propertyInfo.Name)
+                    {
+                        case nameof(RoadMapCard.Thumbnail):
+                        {
+                            propertyInfo.SetValue(card, ParseRoadMapCardThumbnail(currentValue));
+
+                            break;
+                        }
+                        default:
+                        {
+                            if(propertyInfo.PropertyType == typeof(int)
+                            && int.TryParse(currentValue.ToString(), out var intResult))
+                                propertyInfo.SetValue(card, intResult);
+                            else if (propertyInfo.PropertyType == typeof(bool))
+                                propertyInfo.SetValue(card, currentValue.ToString() == "1");
+                            else if (propertyInfo.PropertyType == typeof(DateTime))
+                            {
+                                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                                propertyInfo.SetValue(card, epoch.AddSeconds(double.Parse(currentValue.ToString())));
+                            }
+                            else
+                            {
+                                propertyInfo.SetValue(card, currentValue.ToString());
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
+                list.Add(card);
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Parses the given information into a <see cref="RoadMapCardThumbnail"/>.
+        /// </summary>
+        private static RoadMapCardThumbnail ParseRoadMapCardThumbnail(JToken currentValue)
+        {
+            var thumbnail = new RoadMapCardThumbnail {Id = currentValue["id"]?.ToString()};
+
+            foreach (var x in currentValue["urls"]?.Children().Select(x => x as JProperty).ToList()!) 
+                thumbnail.Urls.Add(x!.Name, x.ToString());
+
+            return thumbnail;
+        }
+
         #endregion
 
+        #endregion
+
+    }
+
+    /// <summary>
+    /// The different types of roadmap.
+    /// </summary>
+    public enum RoadmapTypes
+    {
+#pragma warning disable 1591
+        StarCitizen,
+        Squadron42
+#pragma warning restore 1591
     }
 }

@@ -19,8 +19,7 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
 
             var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
 
-            var shipBuilder = new ShipRequestBuilder();
-            var result = await client.GetShips(shipBuilder.Build());
+            var result = await client.GetRoadmap(RoadmapTypes.StarCitizen, "3.10");
         }
     }
 }
