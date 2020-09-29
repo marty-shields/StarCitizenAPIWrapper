@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using StarCitizenAPIWrapper.Library.Helpers;
-using StarCitizenAPIWrapper.Models.Attributes;
 using StarCitizenAPIWrapper.Models.Organization;
 using StarCitizenAPIWrapper.Models.Organization.Implementations;
 using StarCitizenAPIWrapper.Models.Organization.Members;
@@ -130,9 +126,8 @@ namespace StarCitizenAPIWrapper.Library
 
             foreach (var propertyInfo in typeof(IOrganization).GetProperties())
             {
-                var currentValue = data?[propertyInfo.Name.ToLower()];
-                var attributes = propertyInfo.GetCustomAttributes(true);
-
+                var currentValue = propertyInfo.GetCorrectValueFromProperty(data);
+                
                 switch (propertyInfo.Name)
                 {
                     case nameof(IOrganization.Archetype):
@@ -182,12 +177,6 @@ namespace StarCitizenAPIWrapper.Library
                     }
                     default:
                     {
-                        if (attributes.Any(x => x is ApiNameAttribute))
-                        {
-                            var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
-                            currentValue = data?[nameAttribute?.Name!];
-                        }
-
                         if (propertyInfo.PropertyType == typeof(bool)
                             && bool.TryParse(currentValue?.ToString(), out var boolResult))
                         {
@@ -228,9 +217,8 @@ namespace StarCitizenAPIWrapper.Library
                 var member = new StarCitizenOrganizationMember();
                 foreach (var propertyInfo in typeof(IOrganizationMember).GetProperties())
                 {
-                    var currentValue = memberJson?[propertyInfo.Name.ToLower()];
-                    var attributes = propertyInfo.GetCustomAttributes(true);
-
+                    var currentValue = propertyInfo.GetCorrectValueFromProperty(memberJson);
+                    
                     switch (propertyInfo.Name)
                     {
                         case nameof(IOrganizationMember.Roles):
@@ -243,12 +231,6 @@ namespace StarCitizenAPIWrapper.Library
                         }
                         default:
                         {
-                            if (attributes.Any(x => x is ApiNameAttribute))
-                            {
-                                var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
-                                currentValue = memberJson?[nameAttribute?.Name!];
-                            }
-
                             if (propertyInfo.PropertyType == typeof(int)
                                 && int.TryParse(currentValue?.ToString(), out var intResult))
                             {
@@ -316,18 +298,8 @@ namespace StarCitizenAPIWrapper.Library
                 var ship = new StarCitizenShip();
                 foreach (var propertyInfo in typeof(IShip).GetProperties())
                 {
-                    JToken currentValue;
-                    try
-                    {
-                        currentValue = shipAsJson[propertyInfo.Name.ToLower()];
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
-                    var attributes = propertyInfo.GetCustomAttributes(true);
-
+                    var currentValue = propertyInfo.GetCorrectValueFromProperty(shipAsJson);
+                    
                     switch (propertyInfo.Name)
                     {
                         case nameof(IShip.Media):
@@ -354,9 +326,6 @@ namespace StarCitizenAPIWrapper.Library
                         }
                         case nameof(IShip.ProductionStatus):
                         {
-                            var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
-                            currentValue = shipAsJson[nameAttribute?.Name!];
-
                             var valueToParse = currentValue?.ToString().Replace("-", "");
 
                             if(Enum.TryParse(valueToParse, true, out ProductionStatusTypes productionStatusTypeResult))
@@ -378,12 +347,6 @@ namespace StarCitizenAPIWrapper.Library
                         }
                         default:
                         {
-                            if (attributes.Any(x => x is ApiNameAttribute))
-                            {
-                                var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
-                                currentValue = shipAsJson[nameAttribute?.Name!];
-                            }
-
                             if (currentValue?.ToString() == string.Empty)
                                 break;
 
@@ -489,8 +452,7 @@ namespace StarCitizenAPIWrapper.Library
             var userProfile = new StarCitizenUserProfile();
             foreach (var property in typeof(IUserProfile).GetProperties())
             {
-                var currentValue = profileData?[property.Name.ToLower()];
-                var attributes = property.GetCustomAttributes(true);
+                var currentValue = property.GetCorrectValueFromProperty(profileData);
 
                 switch (property.Name)
                 {
@@ -515,12 +477,6 @@ namespace StarCitizenAPIWrapper.Library
                         }
                     default:
                         {
-                            if (attributes.Any(x => x is ApiNameAttribute))
-                            {
-                                var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
-                                currentValue = profileData?[nameAttribute?.Name!];
-                            }
-
                             property.SetValue(userProfile, currentValue?.ToString());
                             break;
                         }
@@ -595,15 +551,8 @@ namespace StarCitizenAPIWrapper.Library
 
             foreach (var property in typeof(ShipManufacturer).GetProperties())
             {
-                var value = currentValue?[property.Name.ToLower()];
-                var propertyAttributes = property.GetCustomAttributes(true);
-
-                if (propertyAttributes.Any(x => x is ApiNameAttribute))
-                {
-                    var nameAttribute = propertyAttributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
-                    value = currentValue?[nameAttribute?.Name!];
-                }
-
+                var value = property.GetCorrectValueFromProperty(currentValue);
+                
                 if (property.PropertyType == typeof(int)
                     && int.TryParse(value?.ToString(), out var intResult))
                     property.SetValue(manufacturer, intResult);
@@ -626,7 +575,6 @@ namespace StarCitizenAPIWrapper.Library
             {
                 var shipComponentGroup = shipComponentGroupJson as JProperty;
                 var componentTypes = shipComponentGroup!.First!.Children();
-
 
                 var shipComponentClass = (ShipCompiledClasses)Enum.Parse(typeof(ShipCompiledClasses), shipComponentGroup.Name);
                 compiled.Add(
@@ -653,31 +601,23 @@ namespace StarCitizenAPIWrapper.Library
 
                 foreach (var componentOfCurrentType in componentsOfCurrentType)
                 {
-                    try
+                    var rsiComponent = new RsiShipComponent
                     {
-                        var rsiComponent = new RsiShipComponent
-                        {
-                            Name = componentOfCurrentType["name"]?.ToString(),
-                            Class = componentOfCurrentType["component_class"]?.ToString(),
-                            Details = componentOfCurrentType["details"]?.ToString(),
-                            Manufacturer = componentOfCurrentType["manufacturer"]?.ToString(),
-                            Size = componentOfCurrentType["size"]?.ToString(),
-                            Type = componentOfCurrentType["type"]?.ToString()
-                        };
+                        Name = componentOfCurrentType["name"]?.ToString(),
+                        Class = componentOfCurrentType["component_class"]?.ToString(),
+                        Details = componentOfCurrentType["details"]?.ToString(),
+                        Manufacturer = componentOfCurrentType["manufacturer"]?.ToString(),
+                        Size = componentOfCurrentType["size"]?.ToString(),
+                        Type = componentOfCurrentType["type"]?.ToString()
+                    };
 
-                        if (int.TryParse(componentOfCurrentType["mounts"]!.ToString(), out var intResult))
-                            rsiComponent.Mounts = intResult;
+                    if (int.TryParse(componentOfCurrentType["mounts"]!.ToString(), out var intResult))
+                        rsiComponent.Mounts = intResult;
 
-                        if (int.TryParse(componentOfCurrentType["quantity"]!.ToString(), out intResult))
-                            rsiComponent.Quantity = intResult;
+                    if (int.TryParse(componentOfCurrentType["quantity"]!.ToString(), out intResult))
+                        rsiComponent.Quantity = intResult;
 
-                        components.Add(new KeyValuePair<string, RsiShipComponent>(componentType!.Name, rsiComponent));
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
+                    components.Add(new KeyValuePair<string, RsiShipComponent>(componentType!.Name, rsiComponent));
                 }
             }
 
