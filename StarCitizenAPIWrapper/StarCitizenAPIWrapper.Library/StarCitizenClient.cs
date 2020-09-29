@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using StarCitizenAPIWrapper.Library.Helpers;
 using StarCitizenAPIWrapper.Models.Attributes;
 using StarCitizenAPIWrapper.Models.Organization;
 using StarCitizenAPIWrapper.Models.Organization.Implementations;
@@ -426,27 +429,24 @@ namespace StarCitizenAPIWrapper.Library
 
                 foreach (var propertyInfo in typeof(RoadMap).GetProperties())
                 {
-                    var currentValue = roadmapJson[propertyInfo.Name.ToLower()];
-                    var attributes = propertyInfo.GetCustomAttributes(true);
+                    var currentValue = propertyInfo.GetCorrectValueFromProperty(roadmapJson);
 
                     switch (propertyInfo.Name)
                     {
                         case nameof(RoadMap.RoadMapCards):
                         {
+                            propertyInfo.SetValue(newRoadmap, ParseRoadmapCards(roadmapJson["cards"]));
+
                             break;
                         }
                         case nameof(RoadMap.Released):
                         {
+                            propertyInfo.SetValue(newRoadmap, currentValue!.ToString() == "1");
+
                             break;
                         }
                         default:
                         {
-                            if (attributes.Any(x => x is ApiNameAttribute))
-                            {
-                                var nameAttribute = attributes.Single(x => x is ApiNameAttribute) as ApiNameAttribute;
-                                currentValue = roadmapJson![nameAttribute?.Name!];
-                            }
-
                             if (currentValue?.ToString() == string.Empty)
                                 continue;
 
@@ -477,6 +477,7 @@ namespace StarCitizenAPIWrapper.Library
     #endregion
 
         #region private helper methods
+
 
         /// <summary>
         /// Parses the given profile json into a <see cref="IUserProfile"/>.
@@ -681,6 +682,79 @@ namespace StarCitizenAPIWrapper.Library
             }
 
             return components;
+        }
+
+        #endregion
+
+        #region Parse Roadmap
+
+        /// <summary>
+        /// Parses the given information of roadmap cards into a list of <see cref="RoadMapCard"/>
+        /// </summary>
+        private static List<RoadMapCard> ParseRoadmapCards(JToken cardsAsJson)
+        {
+            var list = new List<RoadMapCard>();
+
+            var array = cardsAsJson as JArray;
+
+            foreach (var cardAsJson in array!)
+            {
+                var card = new RoadMapCard();
+
+                foreach (var propertyInfo in typeof(RoadMapCard).GetProperties())
+                {
+                    var currentValue = propertyInfo.GetCorrectValueFromProperty(cardAsJson);
+
+                    if(currentValue == null)
+                        continue;
+
+                    switch (propertyInfo.Name)
+                    {
+                        case nameof(RoadMapCard.Thumbnail):
+                        {
+                            propertyInfo.SetValue(card, ParseRoadMapCardThumbnail(currentValue));
+
+                            break;
+                        }
+                        default:
+                        {
+                            if(propertyInfo.PropertyType == typeof(int)
+                            && int.TryParse(currentValue.ToString(), out var intResult))
+                                propertyInfo.SetValue(card, intResult);
+                            else if (propertyInfo.PropertyType == typeof(bool))
+                                propertyInfo.SetValue(card, currentValue.ToString() == "1");
+                            else if (propertyInfo.PropertyType == typeof(DateTime))
+                            {
+                                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                                propertyInfo.SetValue(card, epoch.AddSeconds(double.Parse(currentValue.ToString())));
+                            }
+                            else
+                            {
+                                propertyInfo.SetValue(card, currentValue.ToString());
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
+                list.Add(card);
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Parses the given information into a <see cref="RoadMapCardThumbnail"/>.
+        /// </summary>
+        private static RoadMapCardThumbnail ParseRoadMapCardThumbnail(JToken currentValue)
+        {
+            var thumbnail = new RoadMapCardThumbnail {Id = currentValue["id"]?.ToString()};
+
+            foreach (var x in currentValue["urls"]?.Children().Select(x => x as JProperty).ToList()!) 
+                thumbnail.Urls.Add(x!.Name, x.ToString());
+
+            return thumbnail;
         }
 
         #endregion

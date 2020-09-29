@@ -23,9 +23,9 @@ namespace StarCitizenAPIWrapper.Models.RoadMap
         [ApiName("category_id")]
         public int CategoryId { get; set; }
         /// <summary>
-        /// Indicates if this card is completed.
+        /// Indicates how much of this card is completed.
         /// </summary>
-        public bool Completed { get; set; }
+        public int Completed { get; set; }
         /// <summary>
         /// The description of this card.
         /// </summary>

@@ -14,6 +14,6 @@ namespace StarCitizenAPIWrapper.Models.RoadMap
         /// <summary>
         /// The image urls of this thumbnail.
         /// </summary>
-        public Dictionary<string, string> Urls { get; set; }
+        public Dictionary<string, string> Urls { get; set; } = new Dictionary<string, string>();
     }
 }

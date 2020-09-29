@@ -17,6 +17,7 @@ namespace StarCitizenAPIWrapper.Models.RoadMap
         /// <summary>
         /// The roadmap cards.
         /// </summary>
+        [ApiName("cards")]
         public List<RoadMapCard> RoadMapCards { get; set; }
         /// <summary>
         /// The description of this roadmap.
