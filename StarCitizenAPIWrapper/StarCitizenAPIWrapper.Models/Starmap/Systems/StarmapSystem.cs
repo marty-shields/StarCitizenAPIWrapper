@@ -18,17 +18,17 @@ namespace StarCitizenAPIWrapper.Models.Starmap.Systems
         /// The aggregated danger of this system.
         /// </summary>
         [ApiName("aggregated_danger")]
-        public int AggregatedDanger { get; set; }
+        public double AggregatedDanger { get; set; }
         /// <summary>
         /// The aggregated economy of this system.
         /// </summary>
         [ApiName("aggregated_economy")]
-        public int AggregatedEconomy { get; set; }
+        public double AggregatedEconomy { get; set; }
         /// <summary>
         /// The aggregated population of this system.
         /// </summary>
         [ApiName("aggregated_population")]
-        public int AggregatedPopulation { get; set; }
+        public double AggregatedPopulation { get; set; }
         /// <summary>
         /// The aggregated size of this system.
         /// </summary>

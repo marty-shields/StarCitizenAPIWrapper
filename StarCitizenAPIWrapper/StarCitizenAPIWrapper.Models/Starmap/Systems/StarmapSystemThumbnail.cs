@@ -10,7 +10,7 @@ namespace StarCitizenAPIWrapper.Models.Starmap.Systems
         /// <summary>
         /// The images of the thumbnail.
         /// </summary>
-        public Dictionary<string, string> Images { get; set; }
+        public Dictionary<string, string> Images { get; set; } = new Dictionary<string, string>();
         /// <summary>
         /// The slug of this thumbnail.
         /// </summary>
