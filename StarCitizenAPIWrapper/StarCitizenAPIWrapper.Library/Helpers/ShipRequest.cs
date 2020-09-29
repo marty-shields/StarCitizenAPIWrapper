@@ -1,4 +1,4 @@
-﻿namespace StarCitizenAPIWrapper.Library
+﻿namespace StarCitizenAPIWrapper.Library.Helpers
 {
     /// <summary>
     /// A complete request for the api about specific ships.
