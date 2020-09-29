@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using StarCitizenAPIWrapper.Library.Helpers;
 using StarCitizenAPIWrapper.Models.Organization;
 using StarCitizenAPIWrapper.Models.Organization.Implementations;
@@ -16,6 +18,7 @@ using StarCitizenAPIWrapper.Models.Ships.Implementations;
 using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
 using StarCitizenAPIWrapper.Models.Starmap.Systems;
+using StarCitizenAPIWrapper.Models.Starmap.Tunnels;
 using StarCitizenAPIWrapper.Models.Stats;
 using StarCitizenAPIWrapper.Models.User;
 using StarCitizenAPIWrapper.Models.User.Implementations;
@@ -486,6 +489,67 @@ namespace StarCitizenAPIWrapper.Library
             return await GetSystems(requestUrl);
         }
 
+        /// <summary>
+        /// Gets the tunnel with the given id or all tunnels.
+        /// </summary>
+        public async Task<List<StarmapTunnel>> GetTunnels(string id = "")
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey,
+                string.IsNullOrEmpty(id) ? "starmap/tunnels" : $"starmap/tunnels?id={id}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)["data"] as JArray;
+
+            var tunnelList = new List<StarmapTunnel>();
+
+            foreach (var tunnelAsJson in data!)
+            {
+                var newTunnel = new StarmapTunnel();
+
+                foreach (var propertyInfo in typeof(StarmapTunnel).GetProperties())
+                {
+                    var currentValue = propertyInfo.GetCorrectValueFromProperty(tunnelAsJson);
+
+                    switch (propertyInfo.Name)
+                    {
+                        case nameof(StarmapTunnel.Entry):
+                        {
+                            propertyInfo.SetValue(newTunnel, ParseStarmapTunnelEntry(currentValue));
+
+                            break;
+                        }
+                        case nameof(StarmapTunnel.Exit):
+                        {
+                            propertyInfo.SetValue(newTunnel, ParseStarmapTunnelEntry(currentValue));
+
+                            break;
+                        }
+                        default:
+                        {
+                            if(propertyInfo.PropertyType == typeof(int)
+                            && int.TryParse(currentValue?.ToString(), out var intResult))
+                                propertyInfo.SetValue(newTunnel, intResult);
+                            else if (propertyInfo.PropertyType == typeof(char)
+                                     && char.TryParse(currentValue?.ToString(), out var charResult))
+                                propertyInfo.SetValue(newTunnel, charResult);
+                            else
+                                propertyInfo.SetValue(newTunnel, currentValue?.ToString());
+
+                            break;
+                        }
+                    }
+                }
+
+                tunnelList.Add(newTunnel);
+            }
+
+            return tunnelList;
+        }
+
         #endregion
 
         #region private helper methods
@@ -858,10 +922,44 @@ namespace StarCitizenAPIWrapper.Library
             return system;
         }
 
-        #endregion
+        /// <summary>
+        /// Parses the given json data into a <see cref="StarmapTunnelEntry"/>.
+        /// </summary>
+        private static StarmapTunnelEntry ParseStarmapTunnelEntry(JToken starmapTunnelEntryJson)
+        {
+            var tunnelEntry = new StarmapTunnelEntry();
+
+            foreach (var propertyInfo in typeof(StarmapTunnelEntry).GetProperties())
+            {
+                var currentValue = propertyInfo.GetCorrectValueFromProperty(starmapTunnelEntryJson);
+
+                switch (propertyInfo.Name)
+                {
+                    default:
+                    {
+                        if(propertyInfo.PropertyType == typeof(double)
+                            && double.TryParse(currentValue?.ToString(), out var doubleResult))
+                            propertyInfo.SetValue(tunnelEntry, doubleResult);
+                        else if(propertyInfo.PropertyType == typeof(int)
+                        && int.TryParse(currentValue?.ToString(), out var intResult))
+                            propertyInfo.SetValue(tunnelEntry, intResult);
+                        else if (propertyInfo.PropertyType == typeof(char)
+                                 && char.TryParse(currentValue?.ToString(), out var charResult))
+                            propertyInfo.SetValue(tunnelEntry, charResult);
+                        else
+                            propertyInfo.SetValue(tunnelEntry, currentValue?.ToString());
+
+                        break;
+                    }
+                }
+            }
+
+            return tunnelEntry;
+        }
 
         #endregion
 
+        #endregion
     }
 
     /// <summary>

@@ -1,4 +1,6 @@
-﻿namespace StarCitizenAPIWrapper.Models.Starmap.Tunnels
+﻿using StarCitizenAPIWrapper.Models.Attributes;
+
+namespace StarCitizenAPIWrapper.Models.Starmap.Tunnels
 {
     /// <summary>
     /// The information about a tunnel inside of a star system.
@@ -10,9 +12,13 @@
         /// </summary>
         public char Direction { get; set; }
         /// <summary>
-        /// The two entries this tunnel has.
+        /// The entry of this tunnel.
         /// </summary>
-        public (StarmapTunnelEntry, StarmapTunnelEntry ) Entry { get; set; }
+        public StarmapTunnelEntry Entry { get; set; }
+        /// <summary>
+        /// The exit of this tunnel.
+        /// </summary>
+        public StarmapTunnelEntry Exit { get; set; }
         /// <summary>
         /// The id of the exit of this tunnel.
         /// </summary>
