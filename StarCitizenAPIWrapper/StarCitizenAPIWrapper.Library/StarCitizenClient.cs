@@ -15,6 +15,7 @@ using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Implementations;
 using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
+using StarCitizenAPIWrapper.Models.Starmap.Systems;
 using StarCitizenAPIWrapper.Models.Stats;
 using StarCitizenAPIWrapper.Models.User;
 using StarCitizenAPIWrapper.Models.User.Implementations;
@@ -467,7 +468,25 @@ namespace StarCitizenAPIWrapper.Library
             return stats;
         }
 
-    #endregion
+        /// <summary>
+        /// Sends an API request for all star systems;
+        /// </summary>
+        public async Task<List<StarmapSystem>> GetAllSystems()
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, "starmap/systems");
+            return await GetSystems(requestUrl);
+        }
+
+        /// <summary>
+        /// Sends an API request for the star system information with the given name.
+        /// </summary>
+        public async Task<List<StarmapSystem>> GetSystem(string name)
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"starmap/systems?name={name}");
+            return await GetSystems(requestUrl);
+        }
+
+        #endregion
 
         #region private helper methods
 
@@ -478,43 +497,43 @@ namespace StarCitizenAPIWrapper.Library
         /// <param name="profileData">The <see cref="JToken"/> containing the profile information.</param>
         /// <returns>A new instance of <see cref="IUserProfile"/> containing the parsed information.</returns>
         private static IUserProfile ParseUserProfile(JToken profileData)
+    {
+        var userProfile = new StarCitizenUserProfile();
+        foreach (var property in typeof(IUserProfile).GetProperties())
         {
-            var userProfile = new StarCitizenUserProfile();
-            foreach (var property in typeof(IUserProfile).GetProperties())
+            var currentValue = property.GetCorrectValueFromProperty(profileData);
+
+            switch (property.Name)
             {
-                var currentValue = property.GetCorrectValueFromProperty(profileData);
+                case nameof(StarCitizenUserProfile.Page):
+                    {
+                        property.SetValue(userProfile, (currentValue?["title"]?.ToString(), currentValue?["url"]?.ToString()));
+                        break;
+                    }
+                case nameof(StarCitizenUserProfile.Enlisted):
+                    {
+                        var dateTime = DateTime.Parse(currentValue?.ToString());
+                        property.SetValue(userProfile, dateTime);
+                        break;
+                    }
+                case nameof(StarCitizenUserProfile.Fluency):
+                    {
+                        var array = currentValue as JArray;
+                        var languageList = array!.Select(arrayItem => arrayItem.ToString()).ToList();
+                        property.SetValue(userProfile, languageList.ToArray());
 
-                switch (property.Name)
-                {
-                    case nameof(StarCitizenUserProfile.Page):
-                        {
-                            property.SetValue(userProfile, (currentValue?["title"]?.ToString(), currentValue?["url"]?.ToString()));
-                            break;
-                        }
-                    case nameof(StarCitizenUserProfile.Enlisted):
-                        {
-                            var dateTime = DateTime.Parse(currentValue?.ToString());
-                            property.SetValue(userProfile, dateTime);
-                            break;
-                        }
-                    case nameof(StarCitizenUserProfile.Fluency):
-                        {
-                            var array = currentValue as JArray;
-                            var languageList = array!.Select(arrayItem => arrayItem.ToString()).ToList();
-                            property.SetValue(userProfile, languageList.ToArray());
-
-                            break;
-                        }
-                    default:
-                        {
-                            property.SetValue(userProfile, currentValue?.ToString());
-                            break;
-                        }
-                }
+                        break;
+                    }
+                default:
+                    {
+                        property.SetValue(userProfile, currentValue?.ToString());
+                        break;
+                    }
             }
-
-            return userProfile;
         }
+
+        return userProfile;
+    }
 
         /// <summary>
         /// Parses the given organization information of a user into a <see cref="IUserOrganizationInfo"/>.
@@ -725,6 +744,118 @@ namespace StarCitizenAPIWrapper.Library
                 thumbnail.Urls.Add(x!.Name, x.ToString());
 
             return thumbnail;
+        }
+
+        #endregion
+
+        #region Parse Starstytems
+
+        /// <summary>
+        /// Sends an API request for the star system information with the given name.
+        /// </summary>
+        private static async Task<List<StarmapSystem>> GetSystems(string requestUrl)
+        {
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)["data"];
+
+            var systemList = new List<StarmapSystem>();
+
+            if (data?.Type == JTokenType.Array)
+            {
+                systemList.AddRange(data.Select(ParseStarmapSystem));
+            }
+            else
+            {
+                systemList.Add(ParseStarmapSystem(data));
+            }
+
+            return systemList;
+        }
+
+        /// <summary>
+        /// Parses the given json data into a <see cref="StarmapSystem"/>.
+        /// </summary>
+        private static StarmapSystem ParseStarmapSystem(JToken starmapSystemJson)
+        {
+            var system = new StarmapSystem();
+
+            foreach (var propertyInfo in typeof(StarmapSystem).GetProperties())
+            {
+                var currentValue = propertyInfo.GetCorrectValueFromProperty(starmapSystemJson);
+
+                if(currentValue == null)
+                    continue;
+
+                switch (propertyInfo.Name)
+                {
+                    case nameof(StarmapSystem.Affiliations):
+                    {
+                        var affiliationList = new List<StarmapSystemAffiliation>();
+
+                        foreach (var affiliation in currentValue)
+                        {
+                            var newAffiliation = new StarmapSystemAffiliation
+                            {
+                                Code = affiliation["code"]?.ToString(),
+                                Color = affiliation["color"]?.ToString(),
+                                Name = affiliation["name"]?.ToString()
+                            };
+
+                            if (int.TryParse(affiliation["id"]?.ToString(), out var intResult))
+                                newAffiliation.Id = intResult;
+
+                            affiliationList.Add(newAffiliation);
+                        }
+
+                        propertyInfo.SetValue(system, affiliationList);
+                        break;
+                    }
+                    case nameof(StarmapSystem.Thumbnail):
+                    {
+                        var thumbnail = new StarmapSystemThumbnail
+                        {
+                            Slug = currentValue["slug"]?.ToString(), 
+                            Source = currentValue["source"]?.ToString()
+                        };
+
+                        foreach (var jToken in currentValue["images"]!)
+                        {
+                            var child = (JProperty) jToken;
+                            thumbnail.Images.Add(child.Name, child.Value.ToString());
+                        }
+
+                        propertyInfo.SetValue(system, thumbnail);
+
+                        break;
+                    }
+                    default:
+                    {
+                        if(propertyInfo.PropertyType == typeof(int) 
+                           && int.TryParse(currentValue?.ToString(), out var intResult))
+                            propertyInfo.SetValue(system, intResult);
+                        else if (propertyInfo.PropertyType == typeof(double)
+                        && double.TryParse(currentValue?.ToString(), out var doubleResult))
+                            propertyInfo.SetValue(system, doubleResult);
+                        else if (propertyInfo.PropertyType == typeof(DateTime)
+                        && DateTime.TryParse(currentValue?.ToString(), out var dateTimeResult))
+                            propertyInfo.SetValue(system, dateTimeResult);
+                        else if(propertyInfo.PropertyType == typeof(char)
+                            && char.TryParse(currentValue?.ToString(), out var charResult))
+                            propertyInfo.SetValue(system, charResult);
+                        else
+                            propertyInfo.SetValue(system, currentValue?.ToString());
+
+                        break;
+                    }
+                }
+            }
+
+            return system;
         }
 
         #endregion
