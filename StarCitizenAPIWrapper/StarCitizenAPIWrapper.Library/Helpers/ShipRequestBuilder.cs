@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StarCitizenAPIWrapper.Library
+namespace StarCitizenAPIWrapper.Library.Helpers
 {
     /// <summary>
     /// A builder class to help creating a request for specific ships.

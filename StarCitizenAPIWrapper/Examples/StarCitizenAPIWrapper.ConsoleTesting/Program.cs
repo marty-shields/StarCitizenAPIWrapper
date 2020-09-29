@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using StarCitizenAPIWrapper.Library;
+using StarCitizenAPIWrapper.Library.Helpers;
 
 namespace StarCitizenAPIWrapper.ConsoleTesting
 {
@@ -19,8 +20,7 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
 
             var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
 
-            var request = new ShipRequestBuilder().WithName("m50");
-            var result = await client.GetShips(request.Build());
+            var result = await client.GetStats();
         }
     }
 }

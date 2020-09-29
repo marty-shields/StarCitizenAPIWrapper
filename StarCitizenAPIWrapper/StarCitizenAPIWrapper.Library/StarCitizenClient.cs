@@ -15,6 +15,7 @@ using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Implementations;
 using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
+using StarCitizenAPIWrapper.Models.Stats;
 using StarCitizenAPIWrapper.Models.User;
 using StarCitizenAPIWrapper.Models.User.Implementations;
 using StarCitizenAPIWrapper.Models.Version;
@@ -435,6 +436,35 @@ namespace StarCitizenAPIWrapper.Library
             }
 
             return roadmaps;
+        }
+
+        /// <summary>
+        /// Sends an API request for the current star citizen stats.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<StarCitizenStats> GetStats()
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, "stats");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            var data = JObject.Parse(content)["data"];
+
+            var stats = new StarCitizenStats {CurrentLive = data?["current_live"]?.ToString()};
+
+            if (long.TryParse(data?["fans"]?.ToString(), out var longResult))
+                stats.Fans = longResult;
+
+            var funds = data?["funds"]?.ToString();
+
+            if (decimal.TryParse(funds, out var decimalResult))
+                stats.Funds = decimalResult;
+
+            return stats;
         }
 
     #endregion
