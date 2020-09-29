@@ -887,6 +887,9 @@ namespace StarCitizenAPIWrapper.Library
                             if (int.TryParse(affiliation["id"]?.ToString(), out var intResult))
                                 newAffiliation.Id = intResult;
 
+                            if(int.TryParse(affiliation["membership.id"]?.ToString(), out intResult))
+                                newAffiliation.MembershipId = intResult;
+
                             affiliationList.Add(newAffiliation);
                         }
 
