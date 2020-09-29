@@ -17,6 +17,7 @@ using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Implementations;
 using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
+using StarCitizenAPIWrapper.Models.Starmap.Affiliations;
 using StarCitizenAPIWrapper.Models.Starmap.Species;
 using StarCitizenAPIWrapper.Models.Starmap.Systems;
 using StarCitizenAPIWrapper.Models.Starmap.Tunnels;
@@ -562,6 +563,54 @@ namespace StarCitizenAPIWrapper.Library
                 speciesList.Add(ParseSpecies(data));
 
             return speciesList;
+        }
+
+        /// <summary>
+        /// Gets the information of the affiliations from the API.
+        /// </summary>
+        public async Task<List<StarCitizenAffiliation>> GetAffiliations(string name = "")
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey,
+                string.IsNullOrEmpty(name)
+                    ? "starmap/affiliations"
+                    : $"starmap/affiliations?name={name}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)["data"];
+
+            var affiliations = new List<StarCitizenAffiliation>();
+
+            if (string.IsNullOrEmpty(data?.ToString()))
+                return affiliations;
+
+            static StarCitizenAffiliation ParseAffiliation(JToken affiliationJson)
+            {
+                var affiliation = new StarCitizenAffiliation();
+
+                foreach (var propertyInfo in typeof(StarCitizenAffiliation).GetProperties())
+                {
+                    var currentValue = propertyInfo.GetCorrectValueFromProperty(affiliationJson);
+
+                    if (propertyInfo.PropertyType == typeof(int)
+                        && int.TryParse(currentValue?.ToString(), out var intResult))
+                        propertyInfo.SetValue(affiliation, intResult);
+                    else
+                        propertyInfo.SetValue(affiliation, currentValue?.ToString());
+                }
+
+                return affiliation;
+            }
+            
+            if(data?.Type == JTokenType.Array)
+                affiliations.AddRange((data as JArray)!.Select(ParseAffiliation));
+            else
+                affiliations.Add(ParseAffiliation(data));
+
+            return affiliations;
         }
 
         #endregion
