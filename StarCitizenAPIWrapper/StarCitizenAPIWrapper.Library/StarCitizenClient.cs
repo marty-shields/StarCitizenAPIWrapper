@@ -502,50 +502,14 @@ namespace StarCitizenAPIWrapper.Library
                 throw new Exception(response.ReasonPhrase);
 
             var content = await response.Content.ReadAsStringAsync();
-            var data = JObject.Parse(content)["data"] as JArray;
+            var data = JObject.Parse(content)["data"];
 
             var tunnelList = new List<StarmapTunnel>();
 
-            foreach (var tunnelAsJson in data!)
-            {
-                var newTunnel = new StarmapTunnel();
-
-                foreach (var propertyInfo in typeof(StarmapTunnel).GetProperties())
-                {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(tunnelAsJson);
-
-                    switch (propertyInfo.Name)
-                    {
-                        case nameof(StarmapTunnel.Entry):
-                        {
-                            propertyInfo.SetValue(newTunnel, ParseStarmapTunnelEntry(currentValue));
-
-                            break;
-                        }
-                        case nameof(StarmapTunnel.Exit):
-                        {
-                            propertyInfo.SetValue(newTunnel, ParseStarmapTunnelEntry(currentValue));
-
-                            break;
-                        }
-                        default:
-                        {
-                            if(propertyInfo.PropertyType == typeof(int)
-                            && int.TryParse(currentValue?.ToString(), out var intResult))
-                                propertyInfo.SetValue(newTunnel, intResult);
-                            else if (propertyInfo.PropertyType == typeof(char)
-                                     && char.TryParse(currentValue?.ToString(), out var charResult))
-                                propertyInfo.SetValue(newTunnel, charResult);
-                            else
-                                propertyInfo.SetValue(newTunnel, currentValue?.ToString());
-
-                            break;
-                        }
-                    }
-                }
-
-                tunnelList.Add(newTunnel);
-            }
+            if(data?.Type == JTokenType.Array)
+                tunnelList.AddRange((data as JArray)!.Select(ParseStarmapTunnel));
+            else
+                tunnelList.Add(ParseStarmapTunnel(data));
 
             return tunnelList;
         }
@@ -920,6 +884,50 @@ namespace StarCitizenAPIWrapper.Library
             }
 
             return system;
+        }
+
+        /// <summary>
+        /// Parses the given tunnel information into a <see cref="StarmapTunnel"/>.
+        /// </summary>
+        private static StarmapTunnel ParseStarmapTunnel(JToken starmapTunnelJson)
+        {
+            var newTunnel = new StarmapTunnel();
+
+            foreach (var propertyInfo in typeof(StarmapTunnel).GetProperties())
+            {
+                var currentValue = propertyInfo.GetCorrectValueFromProperty(starmapTunnelJson);
+
+                switch (propertyInfo.Name)
+                {
+                    case nameof(StarmapTunnel.Entry):
+                    {
+                        propertyInfo.SetValue(newTunnel, ParseStarmapTunnelEntry(currentValue));
+
+                        break;
+                    }
+                    case nameof(StarmapTunnel.Exit):
+                    {
+                        propertyInfo.SetValue(newTunnel, ParseStarmapTunnelEntry(currentValue));
+
+                        break;
+                    }
+                    default:
+                    {
+                        if (propertyInfo.PropertyType == typeof(int)
+                            && int.TryParse(currentValue?.ToString(), out var intResult))
+                            propertyInfo.SetValue(newTunnel, intResult);
+                        else if (propertyInfo.PropertyType == typeof(char)
+                                 && char.TryParse(currentValue?.ToString(), out var charResult))
+                            propertyInfo.SetValue(newTunnel, charResult);
+                        else
+                            propertyInfo.SetValue(newTunnel, currentValue?.ToString());
+
+                        break;
+                    }
+                }
+            }
+
+            return new StarmapTunnel();
         }
 
         /// <summary>
