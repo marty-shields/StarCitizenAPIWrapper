@@ -17,6 +17,7 @@ using StarCitizenAPIWrapper.Models.Ships.Compiled;
 using StarCitizenAPIWrapper.Models.Ships.Implementations;
 using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
+using StarCitizenAPIWrapper.Models.Starmap.Species;
 using StarCitizenAPIWrapper.Models.Starmap.Systems;
 using StarCitizenAPIWrapper.Models.Starmap.Tunnels;
 using StarCitizenAPIWrapper.Models.Stats;
@@ -512,6 +513,55 @@ namespace StarCitizenAPIWrapper.Library
                 tunnelList.Add(ParseStarmapTunnel(data));
 
             return tunnelList;
+        }
+
+        /// <summary>
+        /// Gets the information of the species from the API.
+        /// </summary>
+        /// <param name="name">The name if a specific one is requested.</param>
+        public async Task<List<StarCitizenSpecies>> GetSpecies(string name = "")
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, 
+                string.IsNullOrEmpty(name) 
+                    ? "starmap/species"
+                    : $"starmap/species?name={name}");
+
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(response.ReasonPhrase);
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)["data"];
+
+            var speciesList = new List<StarCitizenSpecies>();
+
+            if (string.IsNullOrEmpty(data?.ToString()))
+                return speciesList;
+
+            static StarCitizenSpecies ParseSpecies(JToken speciesAsJson)
+            {
+                var newSpecies = new StarCitizenSpecies();
+
+                foreach (var propertyInfo in typeof(StarCitizenSpecies).GetProperties())
+                {
+                    var currentValue = propertyInfo.GetCorrectValueFromProperty(speciesAsJson);
+
+                    if (propertyInfo.PropertyType == typeof(int) && int.TryParse(currentValue?.ToString(), out var intResult))
+                        propertyInfo.SetValue(newSpecies, intResult);
+                    else
+                        propertyInfo.SetValue(newSpecies, currentValue?.ToString());
+                }
+
+                return newSpecies;
+            }
+
+            if (data?.Type == JTokenType.Array)
+                speciesList.AddRange((data as JArray)!.Select(ParseSpecies));
+            else
+                speciesList.Add(ParseSpecies(data));
+
+            return speciesList;
         }
 
         #endregion
