@@ -846,29 +846,21 @@ namespace StarCitizenAPIWrapper.Library
         private static StarmapTunnelEntry ParseStarmapTunnelEntry(JToken starmapTunnelEntryJson)
         {
             return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarmapTunnelEntry>(starmapTunnelEntryJson,
-                new Dictionary<string, Func<JToken, object>>())
+                new Dictionary<string, Func<JToken, object>>());
         }
         /// <summary>
         /// Parses the given json data into a <see cref="StarCitizenStarMapObject"/>.
         /// </summary>
         private static StarCitizenStarMapObject ParseStarCitizenStarMapObject(JToken objectJson)
         {
-            var newObject = new StarCitizenStarMapObject();
-
-            foreach (var propertyInfo in typeof(StarCitizenStarMapObject).GetProperties())
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(objectJson);
-
-                if (string.IsNullOrEmpty(currentValue?.ToString()))
-                    continue;
-
-                switch (propertyInfo.Name)
                 {
-                    case nameof(StarCitizenStarMapObject.Affiliations):
+                    nameof(StarCitizenStarMapObject.Affiliations), delegate(JToken currentValue)
                     {
                         var affiliationList = new List<StarmapSystemAffiliation>();
 
-                        foreach (var arrayItemJson in (JArray)currentValue)
+                        foreach (var arrayItemJson in (JArray) currentValue)
                         {
                             var affiliation = new StarmapSystemAffiliation
                             {
@@ -882,35 +874,28 @@ namespace StarCitizenAPIWrapper.Library
                             affiliationList.Add(affiliation);
                         }
 
-                        propertyInfo.SetValue(newObject, affiliationList);
-                        break;
+                        return affiliationList;
                     }
-                    case nameof(StarCitizenStarMapObject.Children):
+                },
+                {
+                    nameof(StarCitizenStarMapObject.Children),
+                    currentValue => currentValue.Children().Select(ParseStarCitizenStarMapObject).ToList()
+                },
+                {
+                    nameof(StarCitizenStarMapObject.SubType),
+                    currentValue => new StarMapObjectSubType
                     {
-                        var list = currentValue.Children().Select(ParseStarCitizenStarMapObject).ToList();
-
-                        propertyInfo.SetValue(newObject, list);
-
-                        break;
+                        Name = currentValue["name"]!.ToString(),
+                        Type = currentValue["type"]!.ToString(),
+                        Id = int.Parse(currentValue["id"]!.ToString())
                     }
-                    case nameof(StarCitizenStarMapObject.SubType):
-                    {
-                        var subType = new StarMapObjectSubType
-                        {
-                            Name = currentValue["name"]!.ToString(),
-                            Type = currentValue["type"]!.ToString(),
-                            Id = int.Parse(currentValue["id"]!.ToString())
-                        };
-
-                        propertyInfo.SetValue(newObject, subType);
-                        break;
-                    }
-                    case nameof(StarCitizenStarMapObject.Textures):
+                },
+                {
+                    nameof(StarCitizenStarMapObject.Textures), delegate(JToken currentValue)
                     {
                         var textures = new StarMapObjectTextures
                         {
-                            Source = currentValue["source"]!.ToString(),
-                            Slug = currentValue["slug"]!.ToString()
+                            Source = currentValue["source"]!.ToString(), Slug = currentValue["slug"]!.ToString()
                         };
 
                         foreach (var jToken in currentValue["images"]!.Children())
@@ -919,20 +904,12 @@ namespace StarCitizenAPIWrapper.Library
                             textures.Images.Add(child.Name, child.Value.ToString());
                         }
 
-                        propertyInfo.SetValue(newObject, textures);
-
-                        break;
+                        return textures;
                     }
-                    default:
-                        {
-                            propertyInfo.SetValue(newObject, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                            break;
-                        }
                 }
-            }
+            };
 
-            return newObject;
+            return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenStarMapObject>(objectJson, customBehaviour);
         }
         /// <summary>
         /// Parses the given json data into a <see cref="StarmapSearchObjectStarSystem"/>.

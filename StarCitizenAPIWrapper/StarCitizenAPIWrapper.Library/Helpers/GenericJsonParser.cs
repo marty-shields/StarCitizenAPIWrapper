@@ -21,6 +21,9 @@ namespace StarCitizenAPIWrapper.Library.Helpers
             {
                 var currentValue = propertyInfo.GetCorrectValueFromProperty(data);
 
+                if(string.IsNullOrEmpty(currentValue?.ToString()))
+                    continue;
+
                 propertyInfo.SetValue(newInstance,
                     customBehaviour.ContainsKey(propertyInfo.Name)
                         ? customBehaviour[propertyInfo.Name].Invoke(currentValue)
