@@ -724,42 +724,14 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static List<RoadMapCard> ParseRoadmapCards(JToken cardsAsJson)
         {
-            var list = new List<RoadMapCard>();
-
             var array = cardsAsJson as JArray;
 
-            foreach (var cardAsJson in array!)
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var card = new RoadMapCard();
+                {nameof(RoadMapCard.Thumbnail), ParseRoadMapCardThumbnail}
+            };
 
-                foreach (var propertyInfo in typeof(RoadMapCard).GetProperties())
-                {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(cardAsJson);
-
-                    if(currentValue == null)
-                        continue;
-
-                    switch (propertyInfo.Name)
-                    {
-                        case nameof(RoadMapCard.Thumbnail):
-                        {
-                            propertyInfo.SetValue(card, ParseRoadMapCardThumbnail(currentValue));
-
-                            break;
-                        }
-                        default:
-                        {
-                            propertyInfo.SetValue(card, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType, true));
-
-                            break;
-                        }
-                    }
-                }
-
-                list.Add(card);
-            }
-
-            return list;
+            return array!.Select(cardAsJson => GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<RoadMapCard>(cardAsJson, customBehaviour)).ToList();
         }
 
         /// <summary>
