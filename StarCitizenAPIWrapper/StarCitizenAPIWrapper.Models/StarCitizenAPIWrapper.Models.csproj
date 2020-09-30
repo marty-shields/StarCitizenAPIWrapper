@@ -8,13 +8,21 @@
     <PackageProjectUrl>https://github.com/TheAnachronism/StarCitizenAPIWrapper</PackageProjectUrl>
     <Authors>TheAnachronism</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.5.0</Version>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>1.6.0</Version>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>StarCitizenAPIWrapper.Models.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
