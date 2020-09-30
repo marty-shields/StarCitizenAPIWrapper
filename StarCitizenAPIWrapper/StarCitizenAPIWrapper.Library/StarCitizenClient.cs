@@ -194,38 +194,20 @@ namespace StarCitizenAPIWrapper.Library
             var content = await response.Content.ReadAsStringAsync();
             var data = JObject.Parse(content)?["data"];
 
-            var members = new List<IOrganizationMember>();
-            var memberJsonArray = data as JArray;
-            foreach (var memberJson in memberJsonArray!)
+            var customParseBehaviour = new Dictionary<string, Func<JToken, object>>();
+
+            customParseBehaviour.Add(nameof(IOrganizationMember.Roles), delegate(JToken currentValue)
             {
-                var member = new StarCitizenOrganizationMember();
-                foreach (var propertyInfo in typeof(IOrganizationMember).GetProperties())
-                {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(memberJson);
-                    
-                    switch (propertyInfo.Name)
-                    {
-                        case nameof(IOrganizationMember.Roles):
-                        {
-                            var roles = memberJson?["roles"] as JArray;
-                            var roleList = roles?.Select(x => x.ToString()).ToArray();
+                var roles = currentValue as JArray;
+                return roles?.Select(x => x.ToString()).ToArray();
+            });
 
-                            propertyInfo.SetValue(member, roleList);
-                            break;
-                        }
-                        default:
-                        {
-                            propertyInfo.SetValue(member, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
+            var memberJsonArray = data as JArray;
 
-                            break;
-                        }
-                    }
-                }
-
-                members.Add(member);
-            }
-
-            return members;
+            return memberJsonArray!
+                .Select(memberJson =>
+                    GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenOrganizationMember>(memberJson,
+                        customParseBehaviour)).Cast<IOrganizationMember>().ToList();
         }
 
         /// <summary>
