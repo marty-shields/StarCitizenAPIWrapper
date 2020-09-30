@@ -313,47 +313,21 @@ namespace StarCitizenAPIWrapper.Library
 
             var content = await response.Content.ReadAsStringAsync();
             var data = JObject.Parse(content)["data"] as JArray;
-            
-            var roadmaps =  new List<RoadMap>();
 
-            foreach (var roadmapJson in data!)
+            var customParseBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var newRoadmap = new RoadMap();
-
-                foreach (var propertyInfo in typeof(RoadMap).GetProperties())
                 {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(roadmapJson);
-
-                    switch (propertyInfo.Name)
-                    {
-                        case nameof(RoadMap.RoadMapCards):
-                        {
-                            propertyInfo.SetValue(newRoadmap, ParseRoadmapCards(roadmapJson["cards"]));
-
-                            break;
-                        }
-                        case nameof(RoadMap.Released):
-                        {
-                            propertyInfo.SetValue(newRoadmap, currentValue!.ToString() == "1");
-
-                            break;
-                        }
-                        default:
-                        {
-                            if (currentValue?.ToString() == string.Empty)
-                                continue;
-
-                            propertyInfo.SetValue(newRoadmap, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType, true));
-
-                            break;
-                        }
-                    }
+                    nameof(RoadMap.RoadMapCards), ParseRoadmapCards
+                },
+                {
+                    nameof(RoadMap.Released), currentValue => currentValue!.ToString() == "1"
                 }
+            };
 
-                roadmaps.Add(newRoadmap);
-            }
-
-            return roadmaps;
+            return data!.Select(roadmapJson => GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<RoadMap>(
+                    roadmapJson,
+                    customParseBehaviour))
+                .ToList();
         }
 
         /// <summary>
