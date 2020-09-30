@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using StarCitizenAPIWrapper.Models.Attributes;
+﻿using StarCitizenAPIWrapper.Models.Attributes;
 
 namespace StarCitizenAPIWrapper.Models.Organization
 {

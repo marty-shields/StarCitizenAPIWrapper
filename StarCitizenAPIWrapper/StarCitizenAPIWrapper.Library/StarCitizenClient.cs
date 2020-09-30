@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json.Linq;
 using StarCitizenAPIWrapper.Library.Helpers;
 using StarCitizenAPIWrapper.Models.Organization;
@@ -129,7 +128,7 @@ namespace StarCitizenAPIWrapper.Library
 
             var content = await response.Content.ReadAsStringAsync();
 
-            var data = JObject.Parse(content)?["data"];
+            var data = JObject.Parse(content)["data"];
 
             var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
@@ -143,7 +142,7 @@ namespace StarCitizenAPIWrapper.Library
                     }
                 },
                 {
-                    nameof(IOrganization.Focus), delegate(JToken currentValue)
+                    nameof(IOrganization.Focus), delegate
                     {
                         var focus = new Focus();
                         var primary = data?["focus"]?["primary"];
@@ -162,7 +161,7 @@ namespace StarCitizenAPIWrapper.Library
                     }
                 },
                 {
-                    nameof(IOrganization.Headline), delegate(JToken currentValue)
+                    nameof(IOrganization.Headline), delegate
                     {
                         var headlineInfo = data?["headline"];
                         var html = headlineInfo?["html"]?.ToString();
@@ -192,7 +191,7 @@ namespace StarCitizenAPIWrapper.Library
                 throw new Exception(response.ReasonPhrase);
 
             var content = await response.Content.ReadAsStringAsync();
-            var data = JObject.Parse(content)?["data"];
+            var data = JObject.Parse(content)["data"];
 
             var customParseBehaviour = new Dictionary<string, Func<JToken, object>>
             {
@@ -227,7 +226,7 @@ namespace StarCitizenAPIWrapper.Library
                 throw new Exception(response.ReasonPhrase);
 
             var content = await response.Content.ReadAsStringAsync();
-            var data = JObject.Parse(content)?["data"];
+            var data = JObject.Parse(content)["data"];
 
             var version = new StarCitizenVersion {Versions = ((JArray) data)!.Select(x => x.ToString()).ToArray()};
 
@@ -246,7 +245,7 @@ namespace StarCitizenAPIWrapper.Library
                 throw new Exception(response.ReasonPhrase);
 
             var content = await response.Content.ReadAsStringAsync();
-            var data = JObject.Parse(content)?["data"];
+            var data = JObject.Parse(content)["data"];
 
             var customParseBehaviour = new Dictionary<string, Func<JToken, object>>
             {
@@ -436,7 +435,7 @@ namespace StarCitizenAPIWrapper.Library
                 return newSpecies;
             }
 
-            if (data?.Type == JTokenType.Array)
+            if (data.Type == JTokenType.Array)
                 speciesList.AddRange((data as JArray)!.Select(ParseSpecies));
             else
                 speciesList.Add(ParseSpecies(data));
@@ -475,7 +474,7 @@ namespace StarCitizenAPIWrapper.Library
                 return affiliation;
             }
             
-            if(data?.Type == JTokenType.Array)
+            if(data.Type == JTokenType.Array)
                 affiliations.AddRange((data as JArray)!.Select(ParseAffiliation));
             else
                 affiliations.Add(ParseAffiliation(data));

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Newtonsoft.Json.Linq;
 
 namespace StarCitizenAPIWrapper.Library.Helpers
@@ -27,7 +26,7 @@ namespace StarCitizenAPIWrapper.Library.Helpers
                 propertyInfo.SetValue(newInstance,
                     customBehaviour.ContainsKey(propertyInfo.Name)
                         ? customBehaviour[propertyInfo.Name].Invoke(currentValue)
-                        : ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
+                        : ParseValueIntoSupportedTypeSafe(currentValue.ToString(), propertyInfo.PropertyType));
             }
 
             return newInstance;

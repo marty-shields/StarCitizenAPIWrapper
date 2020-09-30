@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using StarCitizenAPIWrapper.Library;
-using StarCitizenAPIWrapper.Library.Helpers;
 
 namespace StarCitizenAPIWrapper.ConsoleTesting
 {

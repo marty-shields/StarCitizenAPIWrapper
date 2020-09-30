@@ -1,5 +1,4 @@
-﻿using StarCitizenAPIWrapper.Models.Organization;
-using StarCitizenAPIWrapper.Models.User.Implementations;
+﻿using StarCitizenAPIWrapper.Models.User.Implementations;
 
 namespace StarCitizenAPIWrapper.Models.User
 {

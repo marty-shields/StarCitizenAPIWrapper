@@ -1,6 +1,4 @@
-﻿using StarCitizenAPIWrapper.Models.Attributes;
-
-namespace StarCitizenAPIWrapper.Models.Starmap.Tunnels
+﻿namespace StarCitizenAPIWrapper.Models.Starmap.Tunnels
 {
     /// <summary>
     /// The information about a tunnel inside of a star system.
