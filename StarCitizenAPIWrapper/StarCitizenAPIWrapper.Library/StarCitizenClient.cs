@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using StarCitizenAPIWrapper.Library.Helpers;
 using StarCitizenAPIWrapper.Models.Organization;
 using StarCitizenAPIWrapper.Models.Organization.Implementations;
@@ -188,15 +186,7 @@ namespace StarCitizenAPIWrapper.Library
                     }
                     default:
                     {
-                        if (propertyInfo.PropertyType == typeof(bool)
-                            && bool.TryParse(currentValue?.ToString(), out var boolResult))
-                        {
-                            propertyInfo.SetValue(org, boolResult);
-                        }
-                        else
-                        {
-                            propertyInfo.SetValue(org, currentValue?.ToString());
-                        }
+                        propertyInfo.SetValue(org, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
 
                         break;
                     }
@@ -242,16 +232,7 @@ namespace StarCitizenAPIWrapper.Library
                         }
                         default:
                         {
-                            if (propertyInfo.PropertyType == typeof(int)
-                                && int.TryParse(currentValue?.ToString(), out var intResult))
-                            {
-                                propertyInfo.SetValue(member, intResult);
-                            }
-                            else
-                            {
-                                propertyInfo.SetValue(member, currentValue?.ToString());
-                            }
-
+                            propertyInfo.SetValue(member, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
 
                             break;
                         }
@@ -361,14 +342,7 @@ namespace StarCitizenAPIWrapper.Library
                             if (currentValue?.ToString() == string.Empty)
                                 break;
 
-                            if (propertyInfo.PropertyType == typeof(int)
-                                && int.TryParse(currentValue?.ToString(), out var intResult))
-                                propertyInfo.SetValue(ship, intResult);
-                            else if (propertyInfo.PropertyType == typeof(double)
-                                     && double.TryParse(currentValue?.ToString(), out var doubleResult))
-                                propertyInfo.SetValue(ship, doubleResult);
-                            else
-                                propertyInfo.SetValue(ship, currentValue?.ToString());
+                            propertyInfo.SetValue(ship, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
 
                             break;
                         }
@@ -424,18 +398,7 @@ namespace StarCitizenAPIWrapper.Library
                             if (currentValue?.ToString() == string.Empty)
                                 continue;
 
-                            if (propertyInfo.PropertyType == typeof(int)
-                                && int.TryParse(currentValue!.ToString(), out var intResult))
-                                propertyInfo.SetValue(newRoadmap, intResult);
-                            else if (propertyInfo.PropertyType == typeof(DateTime))
-                            {
-                                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                                propertyInfo.SetValue(newRoadmap, epoch.AddSeconds(double.Parse(currentValue!.ToString())));
-                            }
-                            else
-                            {
-                                propertyInfo.SetValue(newRoadmap, currentValue?.ToString());
-                            }
+                            propertyInfo.SetValue(newRoadmap, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType, true));
 
                             break;
                         }
@@ -720,7 +683,7 @@ namespace StarCitizenAPIWrapper.Library
                     }
                 default:
                     {
-                        property.SetValue(userProfile, currentValue?.ToString());
+                        property.SetValue(userProfile, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), property.PropertyType));
                         break;
                     }
             }
@@ -901,20 +864,7 @@ namespace StarCitizenAPIWrapper.Library
                         }
                         default:
                         {
-                            if(propertyInfo.PropertyType == typeof(int)
-                            && int.TryParse(currentValue.ToString(), out var intResult))
-                                propertyInfo.SetValue(card, intResult);
-                            else if (propertyInfo.PropertyType == typeof(bool))
-                                propertyInfo.SetValue(card, currentValue.ToString() == "1");
-                            else if (propertyInfo.PropertyType == typeof(DateTime))
-                            {
-                                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                                propertyInfo.SetValue(card, epoch.AddSeconds(double.Parse(currentValue.ToString())));
-                            }
-                            else
-                            {
-                                propertyInfo.SetValue(card, currentValue.ToString());
-                            }
+                            propertyInfo.SetValue(card, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType, true));
 
                             break;
                         }
@@ -961,7 +911,7 @@ namespace StarCitizenAPIWrapper.Library
 
             if (data?.Type == JTokenType.Array)
             {
-                systemList.AddRange((IEnumerable<StarmapSystem>) data.Select(ParseStarmapSystem<StarmapSystem>));
+                systemList.AddRange(data.Select(ParseStarmapSystem<StarmapSystem>).ToList());
             }
             else
             {
@@ -1032,21 +982,8 @@ namespace StarCitizenAPIWrapper.Library
                     }
                     default:
                     {
-                        if(propertyInfo.PropertyType == typeof(int) 
-                           && int.TryParse(currentValue?.ToString(), out var intResult))
-                            propertyInfo.SetValue(system, intResult);
-                        else if (propertyInfo.PropertyType == typeof(double)
-                        && double.TryParse(currentValue?.ToString(), out var doubleResult))
-                            propertyInfo.SetValue(system, doubleResult);
-                        else if (propertyInfo.PropertyType == typeof(DateTime)
-                        && DateTime.TryParse(currentValue?.ToString(), out var dateTimeResult))
-                            propertyInfo.SetValue(system, dateTimeResult);
-                        else if(propertyInfo.PropertyType == typeof(char)
-                            && char.TryParse(currentValue?.ToString(), out var charResult))
-                            propertyInfo.SetValue(system, charResult);
-                        else
-                            propertyInfo.SetValue(system, currentValue?.ToString());
-
+                        propertyInfo.SetValue(system, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
+                     
                         break;
                     }
                 }
@@ -1082,21 +1019,14 @@ namespace StarCitizenAPIWrapper.Library
                     }
                     default:
                     {
-                        if (propertyInfo.PropertyType == typeof(int)
-                            && int.TryParse(currentValue?.ToString(), out var intResult))
-                            propertyInfo.SetValue(newTunnel, intResult);
-                        else if (propertyInfo.PropertyType == typeof(char)
-                                 && char.TryParse(currentValue?.ToString(), out var charResult))
-                            propertyInfo.SetValue(newTunnel, charResult);
-                        else
-                            propertyInfo.SetValue(newTunnel, currentValue?.ToString());
+                        propertyInfo.SetValue(newTunnel, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
 
                         break;
                     }
                 }
             }
 
-            return new StarmapTunnel();
+            return newTunnel;
         }
 
         /// <summary>
@@ -1114,17 +1044,7 @@ namespace StarCitizenAPIWrapper.Library
                 {
                     default:
                     {
-                        if(propertyInfo.PropertyType == typeof(double)
-                            && double.TryParse(currentValue?.ToString(), out var doubleResult))
-                            propertyInfo.SetValue(tunnelEntry, doubleResult);
-                        else if(propertyInfo.PropertyType == typeof(int)
-                        && int.TryParse(currentValue?.ToString(), out var intResult))
-                            propertyInfo.SetValue(tunnelEntry, intResult);
-                        else if (propertyInfo.PropertyType == typeof(char)
-                                 && char.TryParse(currentValue?.ToString(), out var charResult))
-                            propertyInfo.SetValue(tunnelEntry, charResult);
-                        else
-                            propertyInfo.SetValue(tunnelEntry, currentValue?.ToString());
+                        propertyInfo.SetValue(tunnelEntry, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
 
                         break;
                     }
@@ -1210,20 +1130,7 @@ namespace StarCitizenAPIWrapper.Library
                     }
                     default:
                         {
-                            if (propertyInfo.PropertyType == typeof(int)
-                                && int.TryParse(currentValue.ToString(), out var intResult))
-                                propertyInfo.SetValue(newObject, intResult);
-                            else if (propertyInfo.PropertyType == typeof(double)
-                                     && double.TryParse(currentValue.ToString(), out var doubleResult))
-                                propertyInfo.SetValue(newObject, doubleResult);
-                            else if (propertyInfo.PropertyType == typeof(DateTime)
-                                     && DateTime.TryParse(currentValue
-                                         ?.ToString(), out var dateResult))
-                                propertyInfo.SetValue(newObject, dateResult);
-                            else if (propertyInfo.PropertyType == typeof(bool))
-                                propertyInfo.SetValue(newObject, currentValue.ToString() == "1");
-                            else
-                                propertyInfo.SetValue(newObject, currentValue.ToString());
+                            propertyInfo.SetValue(newObject, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
 
                             break;
                         }
@@ -1266,12 +1173,7 @@ namespace StarCitizenAPIWrapper.Library
                     }
                     default:
                     {
-                        if (propertyInfo.PropertyType == typeof(int) && int.TryParse(currentValue?.ToString(), out var intResult))
-                            propertyInfo.SetValue(newSearchObject, intResult);
-                        else if (propertyInfo.PropertyType == typeof(char) && char.TryParse(currentValue?.ToString(), out var charResult))
-                            propertyInfo.SetValue(newSearchObject, charResult);
-                        else
-                            propertyInfo.SetValue(newSearchObject, currentValue?.ToString());
+                        propertyInfo.SetValue(newSearchObject, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
 
                         break;
                     }

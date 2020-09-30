@@ -48,16 +48,19 @@ namespace StarCitizenAPIWrapper.Models.RoadMap
         /// DateTime when this roadmap is scheduled at.
         /// </summary>
         [ApiName("scheduled_at")]
+        [TimeStamp]
         public DateTime ScheduledAt { get; set; }
         /// <summary>
         /// DateTime when this roadmap was created.
         /// </summary>
         [ApiName("time_created")]
+        [TimeStamp]
         public DateTime TimeCreated { get; set; }
         /// <summary>
         /// DateTime when this roadmap was last modified.
         /// </summary>
         [ApiName("time_modified")]
+        [TimeStamp]
         public DateTime TimeModified { get; set; }
         /// <summary>
         /// The url slug of this roadmap.
