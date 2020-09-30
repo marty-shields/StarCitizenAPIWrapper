@@ -505,10 +505,7 @@ namespace StarCitizenAPIWrapper.Library
                 {
                     var currentValue = propertyInfo.GetCorrectValueFromProperty(speciesAsJson);
 
-                    if (propertyInfo.PropertyType == typeof(int) && int.TryParse(currentValue?.ToString(), out var intResult))
-                        propertyInfo.SetValue(newSpecies, intResult);
-                    else
-                        propertyInfo.SetValue(newSpecies, currentValue?.ToString());
+                    propertyInfo.SetValue(newSpecies, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
                 }
 
                 return newSpecies;
@@ -551,12 +548,8 @@ namespace StarCitizenAPIWrapper.Library
                 foreach (var propertyInfo in typeof(StarCitizenAffiliation).GetProperties())
                 {
                     var currentValue = propertyInfo.GetCorrectValueFromProperty(affiliationJson);
-
-                    if (propertyInfo.PropertyType == typeof(int)
-                        && int.TryParse(currentValue?.ToString(), out var intResult))
-                        propertyInfo.SetValue(affiliation, intResult);
-                    else
-                        propertyInfo.SetValue(affiliation, currentValue?.ToString());
+                    
+                    propertyInfo.SetValue(affiliation, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
                 }
 
                 return affiliation;
@@ -644,43 +637,43 @@ namespace StarCitizenAPIWrapper.Library
         /// <param name="profileData">The <see cref="JToken"/> containing the profile information.</param>
         /// <returns>A new instance of <see cref="IUserProfile"/> containing the parsed information.</returns>
         private static IUserProfile ParseUserProfile(JToken profileData)
-    {
-        var userProfile = new StarCitizenUserProfile();
-        foreach (var property in typeof(IUserProfile).GetProperties())
         {
-            var currentValue = property.GetCorrectValueFromProperty(profileData);
-
-            switch (property.Name)
+            var userProfile = new StarCitizenUserProfile();
+            foreach (var property in typeof(IUserProfile).GetProperties())
             {
-                case nameof(StarCitizenUserProfile.Page):
-                    {
-                        property.SetValue(userProfile, (currentValue?["title"]?.ToString(), currentValue?["url"]?.ToString()));
-                        break;
-                    }
-                case nameof(StarCitizenUserProfile.Enlisted):
-                    {
-                        var dateTime = DateTime.Parse(currentValue?.ToString());
-                        property.SetValue(userProfile, dateTime);
-                        break;
-                    }
-                case nameof(StarCitizenUserProfile.Fluency):
-                    {
-                        var array = currentValue as JArray;
-                        var languageList = array!.Select(arrayItem => arrayItem.ToString()).ToList();
-                        property.SetValue(userProfile, languageList.ToArray());
+                var currentValue = property.GetCorrectValueFromProperty(profileData);
 
-                        break;
-                    }
-                default:
-                    {
-                        property.SetValue(userProfile, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), property.PropertyType));
-                        break;
-                    }
+                switch (property.Name)
+                {
+                    case nameof(StarCitizenUserProfile.Page):
+                        {
+                            property.SetValue(userProfile, (currentValue?["title"]?.ToString(), currentValue?["url"]?.ToString()));
+                            break;
+                        }
+                    case nameof(StarCitizenUserProfile.Enlisted):
+                        {
+                            var dateTime = DateTime.Parse(currentValue?.ToString());
+                            property.SetValue(userProfile, dateTime);
+                            break;
+                        }
+                    case nameof(StarCitizenUserProfile.Fluency):
+                        {
+                            var array = currentValue as JArray;
+                            var languageList = array!.Select(arrayItem => arrayItem.ToString()).ToList();
+                            property.SetValue(userProfile, languageList.ToArray());
+
+                            break;
+                        }
+                    default:
+                        {
+                            property.SetValue(userProfile, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), property.PropertyType));
+                            break;
+                        }
+                }
             }
-        }
 
-        return userProfile;
-    }
+            return userProfile;
+        }
 
         /// <summary>
         /// Parses the given organization information of a user into a <see cref="IUserOrganizationInfo"/>.
@@ -728,10 +721,9 @@ namespace StarCitizenAPIWrapper.Library
             var imageMedia = (JProperty)shipMediaImageData;
             var newImage = new ShipMediaImage { ImageUrl = imageMedia.Value.ToString() };
             var matchingSize = sizes?[imageMedia.Name];
-            if (int.TryParse(matchingSize?["height"]?.ToString(), out var intResult))
-                newImage.Height = intResult;
-            if (int.TryParse(matchingSize?["width"]?.ToString(), out intResult))
-                newImage.Width = intResult;
+            
+            newImage.Height = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(matchingSize?["height"]?.ToString());
+            newImage.Width = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(matchingSize?["width"]?.ToString());
 
             newImage.Mode = matchingSize?["mode"]?.ToString();
 
@@ -749,11 +741,7 @@ namespace StarCitizenAPIWrapper.Library
             {
                 var value = property.GetCorrectValueFromProperty(currentValue);
                 
-                if (property.PropertyType == typeof(int)
-                    && int.TryParse(value?.ToString(), out var intResult))
-                    property.SetValue(manufacturer, intResult);
-                else
-                    property.SetValue(manufacturer, value?.ToString());
+                property.SetValue(manufacturer, GenericJsonParser.ParseValueIntoSupportedTypeSafe(value?.ToString(), property.PropertyType));
             }
 
             return manufacturer;
@@ -804,14 +792,14 @@ namespace StarCitizenAPIWrapper.Library
                         Details = componentOfCurrentType["details"]?.ToString(),
                         Manufacturer = componentOfCurrentType["manufacturer"]?.ToString(),
                         Size = componentOfCurrentType["size"]?.ToString(),
-                        Type = componentOfCurrentType["type"]?.ToString()
+                        Type = componentOfCurrentType["type"]?.ToString(),
+                        Mounts = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(
+                            componentOfCurrentType["mounts"]!
+                                .ToString()),
+                        Quantity = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(
+                            componentOfCurrentType["quantity"]!
+                                .ToString())
                     };
-
-                    if (int.TryParse(componentOfCurrentType["mounts"]!.ToString(), out var intResult))
-                        rsiComponent.Mounts = intResult;
-
-                    if (int.TryParse(componentOfCurrentType["quantity"]!.ToString(), out intResult))
-                        rsiComponent.Quantity = intResult;
 
                     components.Add(new KeyValuePair<string, RsiShipComponent>(componentType!.Name, rsiComponent));
                 }
@@ -937,14 +925,13 @@ namespace StarCitizenAPIWrapper.Library
                             {
                                 Code = affiliation["code"]?.ToString(),
                                 Color = affiliation["color"]?.ToString(),
-                                Name = affiliation["name"]?.ToString()
+                                Name = affiliation["name"]?.ToString(),
+                                Id = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(affiliation["id"]
+                                    ?.ToString()),
+                                MembershipId = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(
+                                    affiliation["membership.id"]
+                                        ?.ToString())
                             };
-
-                            if (int.TryParse(affiliation["id"]?.ToString(), out var intResult))
-                                newAffiliation.Id = intResult;
-
-                            if(int.TryParse(affiliation["membership.id"]?.ToString(), out intResult))
-                                newAffiliation.MembershipId = intResult;
 
                             affiliationList.Add(newAffiliation);
                         }
