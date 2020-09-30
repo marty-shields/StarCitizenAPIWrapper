@@ -779,18 +779,10 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static IStarmapSystem ParseStarmapSystem<T>(JToken starmapSystemJson) where T : IStarmapSystem
         {
-            var system = (T) Activator.CreateInstance(typeof(T));
-
-            foreach (var propertyInfo in typeof(IStarmapSystem).GetProperties())
+            var customParseBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(starmapSystemJson);
-
-                if(currentValue == null)
-                    continue;
-
-                switch (propertyInfo.Name)
                 {
-                    case nameof(IStarmapSystem.Affiliations):
+                    nameof(IStarmapSystem.Affiliations), delegate(JToken currentValue)
                     {
                         var affiliationList = new List<StarmapSystemAffiliation>();
 
@@ -810,16 +802,16 @@ namespace StarCitizenAPIWrapper.Library
 
                             affiliationList.Add(newAffiliation);
                         }
-                        
-                        propertyInfo.SetValue(system, affiliationList);
-                        break;
+
+                        return affiliationList;
                     }
-                    case nameof(IStarmapSystem.Thumbnail):
+                },
+                {
+                    nameof(IStarmapSystem.Thumbnail), delegate(JToken currentValue)
                     {
                         var thumbnail = new StarmapSystemThumbnail
                         {
-                            Slug = currentValue["slug"]?.ToString(), 
-                            Source = currentValue["source"]?.ToString()
+                            Slug = currentValue["slug"]?.ToString(), Source = currentValue["source"]?.ToString()
                         };
 
                         foreach (var jToken in currentValue["images"]!)
@@ -828,20 +820,12 @@ namespace StarCitizenAPIWrapper.Library
                             thumbnail.Images.Add(child.Name, child.Value.ToString());
                         }
 
-                        propertyInfo.SetValue(system, thumbnail);
-
-                        break;
-                    }
-                    default:
-                    {
-                        propertyInfo.SetValue(system, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-                     
-                        break;
+                        return thumbnail;
                     }
                 }
-            }
+            };
 
-            return system;
+            return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<T>(starmapSystemJson, customParseBehaviour);
         }
 
         /// <summary>

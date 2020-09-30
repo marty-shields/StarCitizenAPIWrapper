@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using StarCitizenAPIWrapper.Models.Attributes;
 
 namespace StarCitizenAPIWrapper.Models.Starmap.Systems.Implementations
 {
