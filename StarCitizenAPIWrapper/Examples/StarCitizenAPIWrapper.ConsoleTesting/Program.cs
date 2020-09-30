@@ -20,7 +20,7 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
 
             var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
 
-            await client.GetSystem("Stanton");
+            await client.GetStarmapObjectFromName("SOL");
         }
     }
 }
