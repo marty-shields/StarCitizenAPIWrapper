@@ -194,13 +194,17 @@ namespace StarCitizenAPIWrapper.Library
             var content = await response.Content.ReadAsStringAsync();
             var data = JObject.Parse(content)?["data"];
 
-            var customParseBehaviour = new Dictionary<string, Func<JToken, object>>();
-
-            customParseBehaviour.Add(nameof(IOrganizationMember.Roles), delegate(JToken currentValue)
+            var customParseBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var roles = currentValue as JArray;
-                return roles?.Select(x => x.ToString()).ToArray();
-            });
+                {
+                    nameof(IOrganizationMember.Roles), delegate(JToken currentValue)
+                    {
+                        var roles = currentValue as JArray;
+                        return roles?.Select(x => x.ToString()).ToArray();
+                    }
+                }
+            };
+
 
             var memberJsonArray = data as JArray;
 
@@ -642,16 +646,8 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static ShipManufacturer ParseManufacturer(JToken currentValue)
         {
-            var manufacturer = new ShipManufacturer();
-
-            foreach (var property in typeof(ShipManufacturer).GetProperties())
-            {
-                var value = property.GetCorrectValueFromProperty(currentValue);
-                
-                property.SetValue(manufacturer, GenericJsonParser.ParseValueIntoSupportedTypeSafe(value?.ToString(), property.PropertyType));
-            }
-
-            return manufacturer;
+            return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<ShipManufacturer>(currentValue,
+                new Dictionary<string, Func<JToken, object>>());
         }
 
         /// <summary>
