@@ -131,24 +131,19 @@ namespace StarCitizenAPIWrapper.Library
 
             var data = JObject.Parse(content)?["data"];
 
-            var org = new StarCitizenOrganization();
-
-            foreach (var propertyInfo in typeof(IOrganization).GetProperties())
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(data);
-                
-                switch (propertyInfo.Name)
                 {
-                    case nameof(IOrganization.Archetype):
+                    nameof(IOrganization.Archetype), delegate(JToken currentValue)
                     {
                         if (!Enum.TryParse(currentValue?.ToString(), out Archetypes type))
-                            break;
+                            return Archetypes.Undefined;
 
-                        propertyInfo.SetValue(org, type);
-
-                        break;
+                        return type;
                     }
-                    case nameof(IOrganization.Focus):
+                },
+                {
+                    nameof(IOrganization.Focus), delegate(JToken currentValue)
                     {
                         var focus = new Focus();
                         var primary = data?["focus"]?["primary"];
@@ -163,28 +158,23 @@ namespace StarCitizenAPIWrapper.Library
                         if (Enum.TryParse(secondary?["name"]?.ToString(), out focusType))
                             focus.SecondaryFocus = focusType;
 
-                        propertyInfo.SetValue(org, focus);
-
-                        break;
+                        return focus;
                     }
-                    case nameof(IOrganization.Headline):
+                },
+                {
+                    nameof(IOrganization.Headline), delegate(JToken currentValue)
                     {
                         var headlineInfo = data?["headline"];
                         var html = headlineInfo?["html"]?.ToString();
                         var plainText = headlineInfo?["plaintext"]?.ToString();
 
-                        propertyInfo.SetValue(org, (html, plainText));
-
-                        break;
-                    }
-                    default:
-                    {
-                        propertyInfo.SetValue(org, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                        break;
+                        return (html, plainText);
                     }
                 }
-            }
+            };
+
+            var org = GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenOrganization>(data,
+                customBehaviour);
 
             return org;
         }

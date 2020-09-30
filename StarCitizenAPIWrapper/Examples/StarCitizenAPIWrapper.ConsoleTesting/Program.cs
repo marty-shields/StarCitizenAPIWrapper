@@ -20,7 +20,7 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
 
             var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
 
-            var result = await client.GetUser("Anachronis");
+            var result = await client.GetOrganization("PROTECTORA");
         }
     }
 }

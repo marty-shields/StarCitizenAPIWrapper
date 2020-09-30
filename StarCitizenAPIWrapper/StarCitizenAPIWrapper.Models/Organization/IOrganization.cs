@@ -111,7 +111,8 @@ namespace StarCitizenAPIWrapper.Models.Organization
         PMC,
         Faith,
         Syndicate,
-        Organization
+        Organization,
+        Undefined
 #pragma warning restore 1591
     }
 }
