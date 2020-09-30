@@ -7,7 +7,7 @@ namespace StarCitizenAPIWrapper.Models.Starmap.Systems
     /// <summary>
     /// The information about a starmap system from RSI.
     /// </summary>
-    public class StarmapSystem
+    public interface IStarmapSystem
     {
         /// <summary>
         /// The different affiliations of this system.

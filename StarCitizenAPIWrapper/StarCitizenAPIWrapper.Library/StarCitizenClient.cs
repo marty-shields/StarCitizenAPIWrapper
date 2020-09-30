@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
@@ -21,6 +22,7 @@ using StarCitizenAPIWrapper.Models.Starmap.Affiliations;
 using StarCitizenAPIWrapper.Models.Starmap.Object;
 using StarCitizenAPIWrapper.Models.Starmap.Species;
 using StarCitizenAPIWrapper.Models.Starmap.Systems;
+using StarCitizenAPIWrapper.Models.Starmap.Systems.Implementations;
 using StarCitizenAPIWrapper.Models.Starmap.Tunnels;
 using StarCitizenAPIWrapper.Models.Stats;
 using StarCitizenAPIWrapper.Models.User;
@@ -477,7 +479,7 @@ namespace StarCitizenAPIWrapper.Library
         /// <summary>
         /// Sends an API request for all star systems;
         /// </summary>
-        public async Task<List<StarmapSystem>> GetAllSystems()
+        public async Task<List<IStarmapSystem>> GetAllSystems()
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, "starmap/systems");
             return await GetSystems(requestUrl);
@@ -486,7 +488,7 @@ namespace StarCitizenAPIWrapper.Library
         /// <summary>
         /// Sends an API request for the star system information with the given name.
         /// </summary>
-        public async Task<List<StarmapSystem>> GetSystem(string name)
+        public async Task<List<IStarmapSystem>> GetSystem(string name)
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"starmap/systems?name={name}");
             return await GetSystems(requestUrl);
@@ -628,6 +630,30 @@ namespace StarCitizenAPIWrapper.Library
             var data = JObject.Parse(content)["data"];
 
             return ParseStarCitizenStarMapObject(data);
+        }
+
+        /// <summary>
+        /// Gets the information from the API of the given system code.
+        /// </summary>
+        public async Task<StarmapSystemDetail> GetStarmapSystem(string code)
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"starmap/star-system?code={code}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)["data"];
+
+            var newSystemDetail = (StarmapSystemDetail)ParseStarmapSystem<StarmapSystemDetail>(data);
+
+            newSystemDetail.CelestialObjects = ((JArray) data!["celestial_objects"]!)!.Select(ParseStarCitizenStarMapObject).ToList();
+
+            newSystemDetail.FrostLine = double.Parse(data["frost_line"]!.ToString());
+            newSystemDetail.HabitableZoneInner = double.Parse(data["habitable_zone_inner"]!.ToString());
+            newSystemDetail.HabitableZoneOuter = double.Parse(data["habitable_zone_outer"]!.ToString());
+
+            return newSystemDetail;
         }
 
         #endregion
@@ -897,7 +923,7 @@ namespace StarCitizenAPIWrapper.Library
         /// <summary>
         /// Sends an API request for the star system information with the given name.
         /// </summary>
-        private static async Task<List<StarmapSystem>> GetSystems(string requestUrl)
+        private static async Task<List<IStarmapSystem>> GetSystems(string requestUrl)
         {
             using var client = new HttpClient();
             var response = await client.GetAsync(requestUrl);
@@ -907,15 +933,15 @@ namespace StarCitizenAPIWrapper.Library
             var content = await response.Content.ReadAsStringAsync();
             var data = JObject.Parse(content)["data"];
 
-            var systemList = new List<StarmapSystem>();
+            var systemList = new List<IStarmapSystem>();
 
             if (data?.Type == JTokenType.Array)
             {
-                systemList.AddRange(data.Select(ParseStarmapSystem));
+                systemList.AddRange((IEnumerable<StarmapSystem>) data.Select(ParseStarmapSystem<StarmapSystem>));
             }
             else
             {
-                systemList.Add(ParseStarmapSystem(data));
+                systemList.Add((StarmapSystem) ParseStarmapSystem<StarmapSystem>(data));
             }
 
             return systemList;
@@ -924,11 +950,11 @@ namespace StarCitizenAPIWrapper.Library
         /// <summary>
         /// Parses the given json data into a <see cref="StarmapSystem"/>.
         /// </summary>
-        private static StarmapSystem ParseStarmapSystem(JToken starmapSystemJson)
+        private static IStarmapSystem ParseStarmapSystem<T>(JToken starmapSystemJson) where T : IStarmapSystem
         {
-            var system = new StarmapSystem();
+            var system = (T) Activator.CreateInstance(typeof(T));
 
-            foreach (var propertyInfo in typeof(StarmapSystem).GetProperties())
+            foreach (var propertyInfo in typeof(IStarmapSystem).GetProperties())
             {
                 var currentValue = propertyInfo.GetCorrectValueFromProperty(starmapSystemJson);
 
@@ -937,7 +963,7 @@ namespace StarCitizenAPIWrapper.Library
 
                 switch (propertyInfo.Name)
                 {
-                    case nameof(StarmapSystem.Affiliations):
+                    case nameof(IStarmapSystem.Affiliations):
                     {
                         var affiliationList = new List<StarmapSystemAffiliation>();
 
@@ -958,11 +984,11 @@ namespace StarCitizenAPIWrapper.Library
 
                             affiliationList.Add(newAffiliation);
                         }
-
+                        
                         propertyInfo.SetValue(system, affiliationList);
                         break;
                     }
-                    case nameof(StarmapSystem.Thumbnail):
+                    case nameof(IStarmapSystem.Thumbnail):
                     {
                         var thumbnail = new StarmapSystemThumbnail
                         {

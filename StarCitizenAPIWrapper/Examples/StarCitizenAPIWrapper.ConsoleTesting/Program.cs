@@ -20,7 +20,7 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
 
             var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
 
-            await client.GetObject("STANTON.PLANETS.STANTONIICRUSADER");
+            await client.GetSystem("Stanton");
         }
     }
 }
