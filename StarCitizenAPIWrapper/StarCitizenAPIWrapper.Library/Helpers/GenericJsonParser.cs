@@ -44,5 +44,14 @@ namespace StarCitizenAPIWrapper.Library.Helpers
             }
             return value;
         }
+
+        /// <summary>
+        /// Parses the given value into an object of the given type if the conversion was successful.
+        /// Otherwise gives back the value as string.
+        /// </summary>
+        public static T ParseValueIntoSupportedTypeSafe<T>(string value, bool parseDateTimeFromTimeStamp = false)
+        {
+            return (T) ParseValueIntoSupportedTypeSafe(value, typeof(T), parseDateTimeFromTimeStamp);
+        }
     }
 }

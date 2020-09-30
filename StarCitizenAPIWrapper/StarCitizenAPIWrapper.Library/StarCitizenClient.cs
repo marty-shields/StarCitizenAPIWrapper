@@ -177,13 +177,6 @@ namespace StarCitizenAPIWrapper.Library
 
                         break;
                     }
-                    case nameof(IOrganization.Members):
-                    {
-                        if (int.TryParse(data?["members"]?.ToString(), out var members))
-                            propertyInfo.SetValue(org, members);
-
-                        break;
-                    }
                     default:
                     {
                         propertyInfo.SetValue(org, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
@@ -427,15 +420,12 @@ namespace StarCitizenAPIWrapper.Library
 
             var data = JObject.Parse(content)["data"];
 
-            var stats = new StarCitizenStats {CurrentLive = data?["current_live"]?.ToString()};
-
-            if (long.TryParse(data?["fans"]?.ToString(), out var longResult))
-                stats.Fans = longResult;
-
-            var funds = data?["funds"]?.ToString();
-
-            if (decimal.TryParse(funds, out var decimalResult))
-                stats.Funds = decimalResult;
+            var stats = new StarCitizenStats
+            {
+                CurrentLive = data?["current_live"]?.ToString(),
+                Fans = GenericJsonParser.ParseValueIntoSupportedTypeSafe<long>(data?["fans"]?.ToString()),
+                Funds = GenericJsonParser.ParseValueIntoSupportedTypeSafe<decimal>(data?["funds"]?.ToString())
+            };
 
             return stats;
         }
