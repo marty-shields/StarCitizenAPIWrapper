@@ -137,6 +137,7 @@ namespace StarCitizenAPIWrapper.Models.Starmap.Object
         /// <summary>
         /// The textures of this object.
         /// </summary>
+        [ApiName("texture")]
         public StarMapObjectTextures Textures { get; set; }
         /// <summary>
         /// The last time this object was modified.

@@ -18,6 +18,7 @@ using StarCitizenAPIWrapper.Models.Ships.Implementations;
 using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
 using StarCitizenAPIWrapper.Models.Starmap.Affiliations;
+using StarCitizenAPIWrapper.Models.Starmap.Object;
 using StarCitizenAPIWrapper.Models.Starmap.Species;
 using StarCitizenAPIWrapper.Models.Starmap.Systems;
 using StarCitizenAPIWrapper.Models.Starmap.Tunnels;
@@ -613,6 +614,22 @@ namespace StarCitizenAPIWrapper.Library
             return affiliations;
         }
 
+        /// <summary>
+        /// Gets the information from the API of the given object code.
+        /// </summary>
+        public async Task<StarCitizenStarMapObject> GetObject(string code)
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"starmap/object?code={code}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)["data"];
+
+            return ParseStarCitizenStarMapObject(data);
+        }
+
         #endregion
 
         #region private helper methods
@@ -1066,7 +1083,105 @@ namespace StarCitizenAPIWrapper.Library
 
             return tunnelEntry;
         }
+        /// <summary>
+        /// Parses the given json data into a <see cref="StarCitizenStarMapObject"/>.
+        /// </summary>
+        private static StarCitizenStarMapObject ParseStarCitizenStarMapObject(JToken objectJson)
+        {
+            var newObject = new StarCitizenStarMapObject();
 
+            foreach (var propertyInfo in typeof(StarCitizenStarMapObject).GetProperties())
+            {
+                var currentValue = propertyInfo.GetCorrectValueFromProperty(objectJson);
+
+                if (string.IsNullOrEmpty(currentValue?.ToString()))
+                    continue;
+
+                switch (propertyInfo.Name)
+                {
+                    case nameof(StarCitizenStarMapObject.Affiliations):
+                    {
+                        var affiliationList = new List<StarmapSystemAffiliation>();
+
+                        foreach (var arrayItemJson in (JArray)currentValue)
+                        {
+                            var affiliation = new StarmapSystemAffiliation
+                            {
+                                Name = arrayItemJson["name"]!.ToString(),
+                                Id = int.Parse(arrayItemJson["id"]!.ToString()),
+                                Code = arrayItemJson["code"]!.ToString(),
+                                Color = arrayItemJson["color"]!.ToString(),
+                                MembershipId = int.Parse(arrayItemJson["membership_id"]!.ToString())
+                            };
+
+                            affiliationList.Add(affiliation);
+                        }
+
+                        propertyInfo.SetValue(newObject, affiliationList);
+                        break;
+                    }
+                    case nameof(StarCitizenStarMapObject.Children):
+                    {
+                        var list = currentValue.Children().Select(ParseStarCitizenStarMapObject).ToList();
+
+                        propertyInfo.SetValue(newObject, list);
+
+                        break;
+                    }
+                    case nameof(StarCitizenStarMapObject.SubType):
+                    {
+                        var subType = new StarMapObjectSubType
+                        {
+                            Name = currentValue["name"]!.ToString(),
+                            Type = currentValue["type"]!.ToString(),
+                            Id = int.Parse(currentValue["id"]!.ToString())
+                        };
+
+                        propertyInfo.SetValue(newObject, subType);
+                        break;
+                    }
+                    case nameof(StarCitizenStarMapObject.Textures):
+                    {
+                        var textures = new StarMapObjectTextures
+                        {
+                            Source = currentValue["source"]!.ToString(),
+                            Slug = currentValue["slug"]!.ToString()
+                        };
+
+                        foreach (var jToken in currentValue["images"]!.Children())
+                        {
+                            var child = (JProperty) jToken;
+                            textures.Images.Add(child.Name, child.Value.ToString());
+                        }
+
+                        propertyInfo.SetValue(newObject, textures);
+
+                        break;
+                    }
+                    default:
+                        {
+                            if (propertyInfo.PropertyType == typeof(int)
+                                && int.TryParse(currentValue.ToString(), out var intResult))
+                                propertyInfo.SetValue(newObject, intResult);
+                            else if (propertyInfo.PropertyType == typeof(double)
+                                     && double.TryParse(currentValue.ToString(), out var doubleResult))
+                                propertyInfo.SetValue(newObject, doubleResult);
+                            else if (propertyInfo.PropertyType == typeof(DateTime)
+                                     && DateTime.TryParse(currentValue
+                                         ?.ToString(), out var dateResult))
+                                propertyInfo.SetValue(newObject, dateResult);
+                            else if (propertyInfo.PropertyType == typeof(bool))
+                                propertyInfo.SetValue(newObject, currentValue.ToString() == "1");
+                            else
+                                propertyInfo.SetValue(newObject, currentValue.ToString());
+
+                            break;
+                        }
+                }
+            }
+
+            return newObject;
+        }
         #endregion
 
         #endregion
