@@ -429,14 +429,9 @@ namespace StarCitizenAPIWrapper.Library
 
             static StarCitizenSpecies ParseSpecies(JToken speciesAsJson)
             {
-                var newSpecies = new StarCitizenSpecies();
-
-                foreach (var propertyInfo in typeof(StarCitizenSpecies).GetProperties())
-                {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(speciesAsJson);
-
-                    propertyInfo.SetValue(newSpecies, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-                }
+                var newSpecies =
+                    GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenSpecies>(speciesAsJson,
+                        new Dictionary<string, Func<JToken, object>>());
 
                 return newSpecies;
             }
@@ -473,14 +468,9 @@ namespace StarCitizenAPIWrapper.Library
 
             static StarCitizenAffiliation ParseAffiliation(JToken affiliationJson)
             {
-                var affiliation = new StarCitizenAffiliation();
-
-                foreach (var propertyInfo in typeof(StarCitizenAffiliation).GetProperties())
-                {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(affiliationJson);
-                    
-                    propertyInfo.SetValue(affiliation, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-                }
+                var affiliation =
+                    GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenAffiliation>(affiliationJson,
+                        new Dictionary<string, Func<JToken, object>>());
 
                 return affiliation;
             }
@@ -833,34 +823,19 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static StarmapTunnel ParseStarmapTunnel(JToken starmapTunnelJson)
         {
-            var newTunnel = new StarmapTunnel();
-
-            foreach (var propertyInfo in typeof(StarmapTunnel).GetProperties())
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(starmapTunnelJson);
-
-                switch (propertyInfo.Name)
                 {
-                    case nameof(StarmapTunnel.Entry):
-                    {
-                        propertyInfo.SetValue(newTunnel, ParseStarmapTunnelEntry(currentValue));
-
-                        break;
-                    }
-                    case nameof(StarmapTunnel.Exit):
-                    {
-                        propertyInfo.SetValue(newTunnel, ParseStarmapTunnelEntry(currentValue));
-
-                        break;
-                    }
-                    default:
-                    {
-                        propertyInfo.SetValue(newTunnel, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                        break;
-                    }
+                    nameof(StarmapTunnel.Entry), ParseStarmapTunnelEntry
+                },
+                {
+                    nameof(StarmapTunnel.Exit), ParseStarmapTunnelEntry
                 }
-            }
+            };
+
+            var newTunnel =
+                GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarmapTunnel>(starmapTunnelJson,
+                    customBehaviour);
 
             return newTunnel;
         }
@@ -870,24 +845,8 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static StarmapTunnelEntry ParseStarmapTunnelEntry(JToken starmapTunnelEntryJson)
         {
-            var tunnelEntry = new StarmapTunnelEntry();
-
-            foreach (var propertyInfo in typeof(StarmapTunnelEntry).GetProperties())
-            {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(starmapTunnelEntryJson);
-
-                switch (propertyInfo.Name)
-                {
-                    default:
-                    {
-                        propertyInfo.SetValue(tunnelEntry, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                        break;
-                    }
-                }
-            }
-
-            return tunnelEntry;
+            return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarmapTunnelEntry>(starmapTunnelEntryJson,
+                new Dictionary<string, Func<JToken, object>>())
         }
         /// <summary>
         /// Parses the given json data into a <see cref="StarCitizenStarMapObject"/>.
