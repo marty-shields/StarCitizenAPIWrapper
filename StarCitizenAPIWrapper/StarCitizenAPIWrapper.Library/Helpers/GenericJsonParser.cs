@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json.Linq;
 
@@ -9,6 +10,23 @@ namespace StarCitizenAPIWrapper.Library.Helpers
     /// </summary>
     public static class GenericJsonParser
     {
+        /// <summary>
+        /// Parses the given json data into a new instance of the given type.
+        /// </summary>
+        public static T ParseJsonIntoNewInstanceOfGivenType<T>(JToken data, Dictionary<string, Action> customBehaviour)
+        {
+            var newInstance = (T) Activator.CreateInstance(typeof(T));
+
+            foreach (var propertyInfo in typeof(T).GetProperties())
+            {
+                var currentValue = propertyInfo.GetCorrectValueFromProperty(data);
+
+                propertyInfo.SetValue(newInstance, ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
+            }
+
+            return newInstance;
+        }
+
         /// <summary>
         /// Parses the given value into an object of the given type if the conversion was successful.
         /// Otherwise gives back the value as string.
