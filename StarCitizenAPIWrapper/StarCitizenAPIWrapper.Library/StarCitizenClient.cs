@@ -638,40 +638,28 @@ namespace StarCitizenAPIWrapper.Library
         /// <returns>A new instance of <see cref="IUserProfile"/> containing the parsed information.</returns>
         private static IUserProfile ParseUserProfile(JToken profileData)
         {
-            var userProfile = new StarCitizenUserProfile();
-            foreach (var property in typeof(IUserProfile).GetProperties())
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = property.GetCorrectValueFromProperty(profileData);
-
-                switch (property.Name)
                 {
-                    case nameof(StarCitizenUserProfile.Page):
-                        {
-                            property.SetValue(userProfile, (currentValue?["title"]?.ToString(), currentValue?["url"]?.ToString()));
-                            break;
-                        }
-                    case nameof(StarCitizenUserProfile.Enlisted):
-                        {
-                            var dateTime = DateTime.Parse(currentValue?.ToString());
-                            property.SetValue(userProfile, dateTime);
-                            break;
-                        }
-                    case nameof(StarCitizenUserProfile.Fluency):
-                        {
-                            var array = currentValue as JArray;
-                            var languageList = array!.Select(arrayItem => arrayItem.ToString()).ToList();
-                            property.SetValue(userProfile, languageList.ToArray());
-
-                            break;
-                        }
-                    default:
-                        {
-                            property.SetValue(userProfile, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), property.PropertyType));
-                            break;
-                        }
+                    nameof(StarCitizenUserProfile.Page),
+                    currentValue => (currentValue?["title"]?.ToString(), currentValue?["url"]?.ToString())
+                },
+                {
+                    nameof(StarCitizenUserProfile.Enlisted), currentValue => DateTime.Parse(currentValue?.ToString())
+                },
+                {
+                    nameof(StarCitizenUserProfile.Fluency), delegate(JToken currentValue)
+                    {
+                        var array = currentValue as JArray;
+                        return array!.Select(arrayItem => arrayItem.ToString()).ToArray();
+                    }
                 }
-            }
+            };
 
+            var userProfile =
+                GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenUserProfile>(profileData,
+                    customBehaviour);
+            
             return userProfile;
         }
 
@@ -680,15 +668,8 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static IUserOrganizationInfo ParseUserOrganizationInfo(JToken userOrganizationData)
         {
-            var organizationData = new UserOrganizationInfo();
-
-            foreach (var property in typeof(UserOrganizationInfo).GetProperties())
-            {
-                var value = userOrganizationData[property.Name.ToLower()];
-                property.SetValue(organizationData, value?.ToString());
-            }
-
-            return organizationData;
+            return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<UserOrganizationInfo>(userOrganizationData,
+                new Dictionary<string, Func<JToken, object>>());
         }
 
         #region Parse Ships

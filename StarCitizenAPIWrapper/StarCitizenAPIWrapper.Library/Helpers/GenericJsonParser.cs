@@ -13,7 +13,7 @@ namespace StarCitizenAPIWrapper.Library.Helpers
         /// <summary>
         /// Parses the given json data into a new instance of the given type.
         /// </summary>
-        public static T ParseJsonIntoNewInstanceOfGivenType<T>(JToken data, Dictionary<string, Action> customBehaviour)
+        public static T ParseJsonIntoNewInstanceOfGivenType<T>(JToken data, Dictionary<string, Func<JToken, object>> customBehaviour)
         {
             var newInstance = (T) Activator.CreateInstance(typeof(T));
 
@@ -21,7 +21,10 @@ namespace StarCitizenAPIWrapper.Library.Helpers
             {
                 var currentValue = propertyInfo.GetCorrectValueFromProperty(data);
 
-                propertyInfo.SetValue(newInstance, ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
+                propertyInfo.SetValue(newInstance,
+                    customBehaviour.ContainsKey(propertyInfo.Name)
+                        ? customBehaviour[propertyInfo.Name].Invoke(currentValue)
+                        : ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
             }
 
             return newInstance;
