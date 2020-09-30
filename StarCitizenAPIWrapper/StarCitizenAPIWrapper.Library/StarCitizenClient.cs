@@ -20,6 +20,7 @@ using StarCitizenAPIWrapper.Models.Ships.Manufacturer;
 using StarCitizenAPIWrapper.Models.Ships.Media;
 using StarCitizenAPIWrapper.Models.Starmap.Affiliations;
 using StarCitizenAPIWrapper.Models.Starmap.Object;
+using StarCitizenAPIWrapper.Models.Starmap.Search;
 using StarCitizenAPIWrapper.Models.Starmap.Species;
 using StarCitizenAPIWrapper.Models.Starmap.Systems;
 using StarCitizenAPIWrapper.Models.Starmap.Systems.Implementations;
@@ -656,6 +657,29 @@ namespace StarCitizenAPIWrapper.Library
             return newSystemDetail;
         }
 
+        /// <summary>
+        /// Gets a specific starmap object with the given name.
+        /// </summary>
+        public async Task<StarmapSearchResult> GetStarmapObjectFromName(string name)
+        {
+            var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"starmap/search?name={name}");
+            using var client = new HttpClient();
+            var response = await client.GetAsync(requestUrl);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JObject.Parse(content)["data"];
+
+            var searchResult =  new StarmapSearchResult();
+            
+            if (string.IsNullOrEmpty(data?.ToString()))
+                return searchResult;
+
+            searchResult.StarmapSearchObjects = (data!["objects"]!.Children())!.Select(ParseStarmapSearchObject).ToList();
+            searchResult.StarSystems = ((JArray) data!["systems"]!)!.Select(ParseStarmapSearchObjectSystem).ToList();
+            return searchResult;
+        }
+
         #endregion
 
         #region private helper methods
@@ -1208,6 +1232,55 @@ namespace StarCitizenAPIWrapper.Library
 
             return newObject;
         }
+        /// <summary>
+        /// Parses the given json data into a <see cref="StarmapSearchObjectStarSystem"/>.
+        /// </summary>
+        private StarmapSearchObjectStarSystem ParseStarmapSearchObjectSystem(JToken currentValue)
+        {
+            var system = new StarmapSearchObjectStarSystem
+            {
+                Name = currentValue["name"]!.ToString(), Type = currentValue["type"]!.ToString(),
+                Id = int.Parse(currentValue["id"]!.ToString()), Code = currentValue["code"]!.ToString()
+            };
+
+            return system;
+        }
+        /// <summary>
+        /// Parses the given json data into a <see cref="StarmapSearchObject"/>.
+        /// </summary>
+        private StarmapSearchObject ParseStarmapSearchObject(JToken data)
+        {
+            var newSearchObject = new StarmapSearchObject();
+
+            foreach (var propertyInfo in typeof(StarmapSearchObject).GetProperties())
+            {
+                var currentValue = propertyInfo.GetCorrectValueFromProperty(data);
+
+                switch (propertyInfo.Name)
+                {
+                    case nameof(StarmapSearchObject.StarSystem):
+                    {
+                        propertyInfo.SetValue(newSearchObject, ParseStarmapSearchObjectSystem(currentValue));
+
+                        break;
+                    }
+                    default:
+                    {
+                        if (propertyInfo.PropertyType == typeof(int) && int.TryParse(currentValue?.ToString(), out var intResult))
+                            propertyInfo.SetValue(newSearchObject, intResult);
+                        else if (propertyInfo.PropertyType == typeof(char) && char.TryParse(currentValue?.ToString(), out var charResult))
+                            propertyInfo.SetValue(newSearchObject, charResult);
+                        else
+                            propertyInfo.SetValue(newSearchObject, currentValue?.ToString());
+
+                        break;
+                    }
+                }
+            }
+
+            return newSearchObject;
+        }
+
         #endregion
 
         #endregion
