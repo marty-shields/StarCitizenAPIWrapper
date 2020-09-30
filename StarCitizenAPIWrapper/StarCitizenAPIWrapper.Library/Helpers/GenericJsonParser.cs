@@ -63,7 +63,7 @@ namespace StarCitizenAPIWrapper.Library.Helpers
                 if(DateTime.TryParse(value, out var dateResult))
                     return dateResult;
             }
-            return value;
+            return Activator.CreateInstance(type);
         }
 
         /// <summary>

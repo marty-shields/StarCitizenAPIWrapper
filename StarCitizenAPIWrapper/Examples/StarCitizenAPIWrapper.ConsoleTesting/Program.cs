@@ -20,7 +20,8 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
 
             var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
 
-            var result = await client.GetOrganizationMembers("GRI");
+            var request = new ShipRequestBuilder().WithName("Kraken");
+            var result = await client.GetShips(request.Build());
         }
     }
 }

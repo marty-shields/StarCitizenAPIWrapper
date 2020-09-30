@@ -244,76 +244,56 @@ namespace StarCitizenAPIWrapper.Library
             var content = await response.Content.ReadAsStringAsync();
             var data = JObject.Parse(content)?["data"];
 
+            var customParseBehaviour = new Dictionary<string, Func<JToken, object>>
+            {
+                {
+                    nameof(IShip.Media),
+                    currentValue => (currentValue as JArray)!.Select(ParseShipMedia).ToArray()
+                },
+                {
+                    nameof(IShip.Size), currentValue =>
+                        Enum.TryParse(currentValue?.ToString(), true, out ShipSizes sizeResult)
+                            ? sizeResult
+                            : ShipSizes.Undefined
+                },
+                {
+                    nameof(IShip.Type), currentValue =>
+                        Enum.TryParse(currentValue?.ToString(), true, out ShipTypes typeResult)
+                            ? typeResult
+                            : ShipTypes.Undefined
+                },
+                {
+                    nameof(IShip.ProductionStatus), delegate(JToken currentValue)
+                    {
+                        var valueToParse = currentValue?.ToString().Replace("-", "");
+
+                        return Enum.TryParse(valueToParse,
+                            true,
+                            out ProductionStatusTypes productionStatusTypeResult)
+                            ? productionStatusTypeResult
+                            : ProductionStatusTypes.Undefined;
+                    }
+                },
+                {
+                    nameof(IShip.Compiled), ParseShipCompiled
+                },
+                {
+                    nameof(IShip.Manufacturer), ParseManufacturer
+                }
+            };
+
             var ships = new List<IShip>();
 
             var shipsAsJson = data as JArray;
+
             foreach (var shipAsJson in shipsAsJson!)
             {
                 if (shipAsJson.ToString() == string.Empty)
                     continue;
 
-                var ship = new StarCitizenShip();
-                foreach (var propertyInfo in typeof(IShip).GetProperties())
-                {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(shipAsJson);
-                    
-                    switch (propertyInfo.Name)
-                    {
-                        case nameof(IShip.Media):
-                        {
-                            var mediaArray = shipAsJson["media"] as JArray;
-
-                            propertyInfo.SetValue(ship, mediaArray!.Select(ParseShipMedia).ToArray());
-
-                            break;
-                        }
-                        case nameof(IShip.Size):
-                        {
-                            if(Enum.TryParse(currentValue?.ToString(), true, out ShipSizes sizeResult))
-                                propertyInfo.SetValue(ship, sizeResult);
-
-                            break;
-                        }
-                        case nameof(IShip.Type):
-                        {
-                            if (Enum.TryParse(currentValue?.ToString(), true, out ShipTypes typeResult))
-                                propertyInfo.SetValue(ship, typeResult);
-
-                            break;
-                        }
-                        case nameof(IShip.ProductionStatus):
-                        {
-                            var valueToParse = currentValue?.ToString().Replace("-", "");
-
-                            if(Enum.TryParse(valueToParse, true, out ProductionStatusTypes productionStatusTypeResult))
-                                propertyInfo.SetValue(ship, productionStatusTypeResult);
-                    
-                            break;
-                        }
-                        case nameof(IShip.Compiled):
-                        {
-                            propertyInfo.SetValue(ship, ParseShipCompiled(currentValue));
-
-                            break;
-                        }
-                        case nameof(IShip.Manufacturer):
-                        {
-                            propertyInfo.SetValue(ship, ParseManufacturer(currentValue));
-
-                            break;
-                        }
-                        default:
-                        {
-                            if (currentValue?.ToString() == string.Empty)
-                                break;
-
-                            propertyInfo.SetValue(ship, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                            break;
-                        }
-                    }
-                }
-
+                var ship = GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenShip>(shipAsJson,
+                    customParseBehaviour);
+                
                 ships.Add(ship);
             }
 
