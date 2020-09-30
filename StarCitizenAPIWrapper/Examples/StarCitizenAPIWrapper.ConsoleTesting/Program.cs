@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using StarCitizenAPIWrapper.Library;
-using StarCitizenAPIWrapper.Library.Helpers;
 
 namespace StarCitizenAPIWrapper.ConsoleTesting
 {
@@ -20,7 +19,7 @@ namespace StarCitizenAPIWrapper.ConsoleTesting
 
             var client = StarCitizenClient.GetClient(config.GetSection("ApiKey").Value);
 
-            var result = await client.GetStarmapObjectFromName("SOL");
+            var result = await client.GetStarmapObjectFromName("Stanton");
         }
     }
 }

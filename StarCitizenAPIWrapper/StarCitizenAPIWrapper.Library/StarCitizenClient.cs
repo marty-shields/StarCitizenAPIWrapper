@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json.Linq;
 using StarCitizenAPIWrapper.Library.Helpers;
 using StarCitizenAPIWrapper.Models.Organization;
@@ -129,26 +128,21 @@ namespace StarCitizenAPIWrapper.Library
 
             var content = await response.Content.ReadAsStringAsync();
 
-            var data = JObject.Parse(content)?["data"];
+            var data = JObject.Parse(content)["data"];
 
-            var org = new StarCitizenOrganization();
-
-            foreach (var propertyInfo in typeof(IOrganization).GetProperties())
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(data);
-                
-                switch (propertyInfo.Name)
                 {
-                    case nameof(IOrganization.Archetype):
+                    nameof(IOrganization.Archetype), delegate(JToken currentValue)
                     {
                         if (!Enum.TryParse(currentValue?.ToString(), out Archetypes type))
-                            break;
+                            return Archetypes.Undefined;
 
-                        propertyInfo.SetValue(org, type);
-
-                        break;
+                        return type;
                     }
-                    case nameof(IOrganization.Focus):
+                },
+                {
+                    nameof(IOrganization.Focus), delegate
                     {
                         var focus = new Focus();
                         var primary = data?["focus"]?["primary"];
@@ -163,35 +157,23 @@ namespace StarCitizenAPIWrapper.Library
                         if (Enum.TryParse(secondary?["name"]?.ToString(), out focusType))
                             focus.SecondaryFocus = focusType;
 
-                        propertyInfo.SetValue(org, focus);
-
-                        break;
+                        return focus;
                     }
-                    case nameof(IOrganization.Headline):
+                },
+                {
+                    nameof(IOrganization.Headline), delegate
                     {
                         var headlineInfo = data?["headline"];
                         var html = headlineInfo?["html"]?.ToString();
                         var plainText = headlineInfo?["plaintext"]?.ToString();
 
-                        propertyInfo.SetValue(org, (html, plainText));
-
-                        break;
-                    }
-                    case nameof(IOrganization.Members):
-                    {
-                        if (int.TryParse(data?["members"]?.ToString(), out var members))
-                            propertyInfo.SetValue(org, members);
-
-                        break;
-                    }
-                    default:
-                    {
-                        propertyInfo.SetValue(org, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                        break;
+                        return (html, plainText);
                     }
                 }
-            }
+            };
+
+            var org = GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenOrganization>(data,
+                customBehaviour);
 
             return org;
         }
@@ -209,40 +191,26 @@ namespace StarCitizenAPIWrapper.Library
                 throw new Exception(response.ReasonPhrase);
 
             var content = await response.Content.ReadAsStringAsync();
-            var data = JObject.Parse(content)?["data"];
+            var data = JObject.Parse(content)["data"];
 
-            var members = new List<IOrganizationMember>();
-            var memberJsonArray = data as JArray;
-            foreach (var memberJson in memberJsonArray!)
+            var customParseBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var member = new StarCitizenOrganizationMember();
-                foreach (var propertyInfo in typeof(IOrganizationMember).GetProperties())
                 {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(memberJson);
-                    
-                    switch (propertyInfo.Name)
+                    nameof(IOrganizationMember.Roles), delegate(JToken currentValue)
                     {
-                        case nameof(IOrganizationMember.Roles):
-                        {
-                            var roles = memberJson?["roles"] as JArray;
-                            var roleList = roles?.Select(x => x.ToString()).ToArray();
-
-                            propertyInfo.SetValue(member, roleList);
-                            break;
-                        }
-                        default:
-                        {
-                            propertyInfo.SetValue(member, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                            break;
-                        }
+                        var roles = currentValue as JArray;
+                        return roles?.Select(x => x.ToString()).ToArray();
                     }
                 }
+            };
 
-                members.Add(member);
-            }
 
-            return members;
+            var memberJsonArray = data as JArray;
+
+            return memberJsonArray!
+                .Select(memberJson =>
+                    GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenOrganizationMember>(memberJson,
+                        customParseBehaviour)).Cast<IOrganizationMember>().ToList();
         }
 
         /// <summary>
@@ -258,7 +226,7 @@ namespace StarCitizenAPIWrapper.Library
                 throw new Exception(response.ReasonPhrase);
 
             var content = await response.Content.ReadAsStringAsync();
-            var data = JObject.Parse(content)?["data"];
+            var data = JObject.Parse(content)["data"];
 
             var version = new StarCitizenVersion {Versions = ((JArray) data)!.Select(x => x.ToString()).ToArray()};
 
@@ -277,78 +245,58 @@ namespace StarCitizenAPIWrapper.Library
                 throw new Exception(response.ReasonPhrase);
 
             var content = await response.Content.ReadAsStringAsync();
-            var data = JObject.Parse(content)?["data"];
+            var data = JObject.Parse(content)["data"];
+
+            var customParseBehaviour = new Dictionary<string, Func<JToken, object>>
+            {
+                {
+                    nameof(IShip.Media),
+                    currentValue => (currentValue as JArray)!.Select(ParseShipMedia).ToArray()
+                },
+                {
+                    nameof(IShip.Size), currentValue =>
+                        Enum.TryParse(currentValue?.ToString(), true, out ShipSizes sizeResult)
+                            ? sizeResult
+                            : ShipSizes.Undefined
+                },
+                {
+                    nameof(IShip.Type), currentValue =>
+                        Enum.TryParse(currentValue?.ToString(), true, out ShipTypes typeResult)
+                            ? typeResult
+                            : ShipTypes.Undefined
+                },
+                {
+                    nameof(IShip.ProductionStatus), delegate(JToken currentValue)
+                    {
+                        var valueToParse = currentValue?.ToString().Replace("-", "");
+
+                        return Enum.TryParse(valueToParse,
+                            true,
+                            out ProductionStatusTypes productionStatusTypeResult)
+                            ? productionStatusTypeResult
+                            : ProductionStatusTypes.Undefined;
+                    }
+                },
+                {
+                    nameof(IShip.Compiled), ParseShipCompiled
+                },
+                {
+                    nameof(IShip.Manufacturer), ParseManufacturer
+                }
+            };
 
             var ships = new List<IShip>();
 
             var shipsAsJson = data as JArray;
+
             foreach (var shipAsJson in shipsAsJson!)
             {
                 if (shipAsJson.ToString() == string.Empty)
                     continue;
 
-                var ship = new StarCitizenShip();
-                foreach (var propertyInfo in typeof(IShip).GetProperties())
-                {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(shipAsJson);
-                    
-                    switch (propertyInfo.Name)
-                    {
-                        case nameof(IShip.Media):
-                        {
-                            var mediaArray = shipAsJson["media"] as JArray;
-
-                            propertyInfo.SetValue(ship, mediaArray!.Select(ParseShipMedia).ToArray());
-
-                            break;
-                        }
-                        case nameof(IShip.Size):
-                        {
-                            if(Enum.TryParse(currentValue?.ToString(), true, out ShipSizes sizeResult))
-                                propertyInfo.SetValue(ship, sizeResult);
-
-                            break;
-                        }
-                        case nameof(IShip.Type):
-                        {
-                            if (Enum.TryParse(currentValue?.ToString(), true, out ShipTypes typeResult))
-                                propertyInfo.SetValue(ship, typeResult);
-
-                            break;
-                        }
-                        case nameof(IShip.ProductionStatus):
-                        {
-                            var valueToParse = currentValue?.ToString().Replace("-", "");
-
-                            if(Enum.TryParse(valueToParse, true, out ProductionStatusTypes productionStatusTypeResult))
-                                propertyInfo.SetValue(ship, productionStatusTypeResult);
-                    
-                            break;
-                        }
-                        case nameof(IShip.Compiled):
-                        {
-                            propertyInfo.SetValue(ship, ParseShipCompiled(currentValue));
-
-                            break;
-                        }
-                        case nameof(IShip.Manufacturer):
-                        {
-                            propertyInfo.SetValue(ship, ParseManufacturer(currentValue));
-
-                            break;
-                        }
-                        default:
-                        {
-                            if (currentValue?.ToString() == string.Empty)
-                                break;
-
-                            propertyInfo.SetValue(ship, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                            break;
-                        }
-                    }
-                }
-
+                var ship = GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenShip>(shipAsJson,
+                    customParseBehaviour);
+                
                 ships.Add(ship);
             }
 
@@ -368,47 +316,21 @@ namespace StarCitizenAPIWrapper.Library
 
             var content = await response.Content.ReadAsStringAsync();
             var data = JObject.Parse(content)["data"] as JArray;
-            
-            var roadmaps =  new List<RoadMap>();
 
-            foreach (var roadmapJson in data!)
+            var customParseBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var newRoadmap = new RoadMap();
-
-                foreach (var propertyInfo in typeof(RoadMap).GetProperties())
                 {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(roadmapJson);
-
-                    switch (propertyInfo.Name)
-                    {
-                        case nameof(RoadMap.RoadMapCards):
-                        {
-                            propertyInfo.SetValue(newRoadmap, ParseRoadmapCards(roadmapJson["cards"]));
-
-                            break;
-                        }
-                        case nameof(RoadMap.Released):
-                        {
-                            propertyInfo.SetValue(newRoadmap, currentValue!.ToString() == "1");
-
-                            break;
-                        }
-                        default:
-                        {
-                            if (currentValue?.ToString() == string.Empty)
-                                continue;
-
-                            propertyInfo.SetValue(newRoadmap, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType, true));
-
-                            break;
-                        }
-                    }
+                    nameof(RoadMap.RoadMapCards), ParseRoadmapCards
+                },
+                {
+                    nameof(RoadMap.Released), currentValue => currentValue!.ToString() == "1"
                 }
+            };
 
-                roadmaps.Add(newRoadmap);
-            }
-
-            return roadmaps;
+            return data!.Select(roadmapJson => GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<RoadMap>(
+                    roadmapJson,
+                    customParseBehaviour))
+                .ToList();
         }
 
         /// <summary>
@@ -427,15 +349,12 @@ namespace StarCitizenAPIWrapper.Library
 
             var data = JObject.Parse(content)["data"];
 
-            var stats = new StarCitizenStats {CurrentLive = data?["current_live"]?.ToString()};
-
-            if (long.TryParse(data?["fans"]?.ToString(), out var longResult))
-                stats.Fans = longResult;
-
-            var funds = data?["funds"]?.ToString();
-
-            if (decimal.TryParse(funds, out var decimalResult))
-                stats.Funds = decimalResult;
+            var stats = new StarCitizenStats
+            {
+                CurrentLive = data?["current_live"]?.ToString(),
+                Fans = GenericJsonParser.ParseValueIntoSupportedTypeSafe<long>(data?["fans"]?.ToString()),
+                Funds = GenericJsonParser.ParseValueIntoSupportedTypeSafe<decimal>(data?["funds"]?.ToString())
+            };
 
             return stats;
         }
@@ -509,22 +428,14 @@ namespace StarCitizenAPIWrapper.Library
 
             static StarCitizenSpecies ParseSpecies(JToken speciesAsJson)
             {
-                var newSpecies = new StarCitizenSpecies();
-
-                foreach (var propertyInfo in typeof(StarCitizenSpecies).GetProperties())
-                {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(speciesAsJson);
-
-                    if (propertyInfo.PropertyType == typeof(int) && int.TryParse(currentValue?.ToString(), out var intResult))
-                        propertyInfo.SetValue(newSpecies, intResult);
-                    else
-                        propertyInfo.SetValue(newSpecies, currentValue?.ToString());
-                }
+                var newSpecies =
+                    GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenSpecies>(speciesAsJson,
+                        new Dictionary<string, Func<JToken, object>>());
 
                 return newSpecies;
             }
 
-            if (data?.Type == JTokenType.Array)
+            if (data.Type == JTokenType.Array)
                 speciesList.AddRange((data as JArray)!.Select(ParseSpecies));
             else
                 speciesList.Add(ParseSpecies(data));
@@ -556,23 +467,14 @@ namespace StarCitizenAPIWrapper.Library
 
             static StarCitizenAffiliation ParseAffiliation(JToken affiliationJson)
             {
-                var affiliation = new StarCitizenAffiliation();
-
-                foreach (var propertyInfo in typeof(StarCitizenAffiliation).GetProperties())
-                {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(affiliationJson);
-
-                    if (propertyInfo.PropertyType == typeof(int)
-                        && int.TryParse(currentValue?.ToString(), out var intResult))
-                        propertyInfo.SetValue(affiliation, intResult);
-                    else
-                        propertyInfo.SetValue(affiliation, currentValue?.ToString());
-                }
+                var affiliation =
+                    GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenAffiliation>(affiliationJson,
+                        new Dictionary<string, Func<JToken, object>>());
 
                 return affiliation;
             }
             
-            if(data?.Type == JTokenType.Array)
+            if(data.Type == JTokenType.Array)
                 affiliations.AddRange((data as JArray)!.Select(ParseAffiliation));
             else
                 affiliations.Add(ParseAffiliation(data));
@@ -654,58 +556,39 @@ namespace StarCitizenAPIWrapper.Library
         /// <param name="profileData">The <see cref="JToken"/> containing the profile information.</param>
         /// <returns>A new instance of <see cref="IUserProfile"/> containing the parsed information.</returns>
         private static IUserProfile ParseUserProfile(JToken profileData)
-    {
-        var userProfile = new StarCitizenUserProfile();
-        foreach (var property in typeof(IUserProfile).GetProperties())
         {
-            var currentValue = property.GetCorrectValueFromProperty(profileData);
-
-            switch (property.Name)
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                case nameof(StarCitizenUserProfile.Page):
-                    {
-                        property.SetValue(userProfile, (currentValue?["title"]?.ToString(), currentValue?["url"]?.ToString()));
-                        break;
-                    }
-                case nameof(StarCitizenUserProfile.Enlisted):
-                    {
-                        var dateTime = DateTime.Parse(currentValue?.ToString());
-                        property.SetValue(userProfile, dateTime);
-                        break;
-                    }
-                case nameof(StarCitizenUserProfile.Fluency):
+                {
+                    nameof(StarCitizenUserProfile.Page),
+                    currentValue => (currentValue?["title"]?.ToString(), currentValue?["url"]?.ToString())
+                },
+                {
+                    nameof(StarCitizenUserProfile.Enlisted), currentValue => DateTime.Parse(currentValue?.ToString())
+                },
+                {
+                    nameof(StarCitizenUserProfile.Fluency), delegate(JToken currentValue)
                     {
                         var array = currentValue as JArray;
-                        var languageList = array!.Select(arrayItem => arrayItem.ToString()).ToList();
-                        property.SetValue(userProfile, languageList.ToArray());
+                        return array!.Select(arrayItem => arrayItem.ToString()).ToArray();
+                    }
+                }
+            };
 
-                        break;
-                    }
-                default:
-                    {
-                        property.SetValue(userProfile, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), property.PropertyType));
-                        break;
-                    }
-            }
+            var userProfile =
+                GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenUserProfile>(profileData,
+                    customBehaviour);
+            
+            return userProfile;
         }
-
-        return userProfile;
-    }
 
         /// <summary>
         /// Parses the given organization information of a user into a <see cref="IUserOrganizationInfo"/>.
         /// </summary>
         private static IUserOrganizationInfo ParseUserOrganizationInfo(JToken userOrganizationData)
         {
-            var organizationData = new UserOrganizationInfo();
-
-            foreach (var property in typeof(UserOrganizationInfo).GetProperties())
-            {
-                var value = userOrganizationData[property.Name.ToLower()];
-                property.SetValue(organizationData, value?.ToString());
-            }
-
-            return organizationData;
+            return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<UserOrganizationInfo>(userOrganizationData,
+                new Dictionary<string, Func<JToken, object>>());
         }
 
         #region Parse Ships
@@ -738,10 +621,9 @@ namespace StarCitizenAPIWrapper.Library
             var imageMedia = (JProperty)shipMediaImageData;
             var newImage = new ShipMediaImage { ImageUrl = imageMedia.Value.ToString() };
             var matchingSize = sizes?[imageMedia.Name];
-            if (int.TryParse(matchingSize?["height"]?.ToString(), out var intResult))
-                newImage.Height = intResult;
-            if (int.TryParse(matchingSize?["width"]?.ToString(), out intResult))
-                newImage.Width = intResult;
+            
+            newImage.Height = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(matchingSize?["height"]?.ToString());
+            newImage.Width = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(matchingSize?["width"]?.ToString());
 
             newImage.Mode = matchingSize?["mode"]?.ToString();
 
@@ -753,20 +635,8 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static ShipManufacturer ParseManufacturer(JToken currentValue)
         {
-            var manufacturer = new ShipManufacturer();
-
-            foreach (var property in typeof(ShipManufacturer).GetProperties())
-            {
-                var value = property.GetCorrectValueFromProperty(currentValue);
-                
-                if (property.PropertyType == typeof(int)
-                    && int.TryParse(value?.ToString(), out var intResult))
-                    property.SetValue(manufacturer, intResult);
-                else
-                    property.SetValue(manufacturer, value?.ToString());
-            }
-
-            return manufacturer;
+            return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<ShipManufacturer>(currentValue,
+                new Dictionary<string, Func<JToken, object>>());
         }
 
         /// <summary>
@@ -814,14 +684,14 @@ namespace StarCitizenAPIWrapper.Library
                         Details = componentOfCurrentType["details"]?.ToString(),
                         Manufacturer = componentOfCurrentType["manufacturer"]?.ToString(),
                         Size = componentOfCurrentType["size"]?.ToString(),
-                        Type = componentOfCurrentType["type"]?.ToString()
+                        Type = componentOfCurrentType["type"]?.ToString(),
+                        Mounts = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(
+                            componentOfCurrentType["mounts"]!
+                                .ToString()),
+                        Quantity = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(
+                            componentOfCurrentType["quantity"]!
+                                .ToString())
                     };
-
-                    if (int.TryParse(componentOfCurrentType["mounts"]!.ToString(), out var intResult))
-                        rsiComponent.Mounts = intResult;
-
-                    if (int.TryParse(componentOfCurrentType["quantity"]!.ToString(), out intResult))
-                        rsiComponent.Quantity = intResult;
 
                     components.Add(new KeyValuePair<string, RsiShipComponent>(componentType!.Name, rsiComponent));
                 }
@@ -839,42 +709,14 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static List<RoadMapCard> ParseRoadmapCards(JToken cardsAsJson)
         {
-            var list = new List<RoadMapCard>();
-
             var array = cardsAsJson as JArray;
 
-            foreach (var cardAsJson in array!)
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var card = new RoadMapCard();
+                {nameof(RoadMapCard.Thumbnail), ParseRoadMapCardThumbnail}
+            };
 
-                foreach (var propertyInfo in typeof(RoadMapCard).GetProperties())
-                {
-                    var currentValue = propertyInfo.GetCorrectValueFromProperty(cardAsJson);
-
-                    if(currentValue == null)
-                        continue;
-
-                    switch (propertyInfo.Name)
-                    {
-                        case nameof(RoadMapCard.Thumbnail):
-                        {
-                            propertyInfo.SetValue(card, ParseRoadMapCardThumbnail(currentValue));
-
-                            break;
-                        }
-                        default:
-                        {
-                            propertyInfo.SetValue(card, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType, true));
-
-                            break;
-                        }
-                    }
-                }
-
-                list.Add(card);
-            }
-
-            return list;
+            return array!.Select(cardAsJson => GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<RoadMapCard>(cardAsJson, customBehaviour)).ToList();
         }
 
         /// <summary>
@@ -926,18 +768,10 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static IStarmapSystem ParseStarmapSystem<T>(JToken starmapSystemJson) where T : IStarmapSystem
         {
-            var system = (T) Activator.CreateInstance(typeof(T));
-
-            foreach (var propertyInfo in typeof(IStarmapSystem).GetProperties())
+            var customParseBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(starmapSystemJson);
-
-                if(currentValue == null)
-                    continue;
-
-                switch (propertyInfo.Name)
                 {
-                    case nameof(IStarmapSystem.Affiliations):
+                    nameof(IStarmapSystem.Affiliations), delegate(JToken currentValue)
                     {
                         var affiliationList = new List<StarmapSystemAffiliation>();
 
@@ -947,27 +781,26 @@ namespace StarCitizenAPIWrapper.Library
                             {
                                 Code = affiliation["code"]?.ToString(),
                                 Color = affiliation["color"]?.ToString(),
-                                Name = affiliation["name"]?.ToString()
+                                Name = affiliation["name"]?.ToString(),
+                                Id = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(affiliation["id"]
+                                    ?.ToString()),
+                                MembershipId = GenericJsonParser.ParseValueIntoSupportedTypeSafe<int>(
+                                    affiliation["membership.id"]
+                                        ?.ToString())
                             };
-
-                            if (int.TryParse(affiliation["id"]?.ToString(), out var intResult))
-                                newAffiliation.Id = intResult;
-
-                            if(int.TryParse(affiliation["membership.id"]?.ToString(), out intResult))
-                                newAffiliation.MembershipId = intResult;
 
                             affiliationList.Add(newAffiliation);
                         }
-                        
-                        propertyInfo.SetValue(system, affiliationList);
-                        break;
+
+                        return affiliationList;
                     }
-                    case nameof(IStarmapSystem.Thumbnail):
+                },
+                {
+                    nameof(IStarmapSystem.Thumbnail), delegate(JToken currentValue)
                     {
                         var thumbnail = new StarmapSystemThumbnail
                         {
-                            Slug = currentValue["slug"]?.ToString(), 
-                            Source = currentValue["source"]?.ToString()
+                            Slug = currentValue["slug"]?.ToString(), Source = currentValue["source"]?.ToString()
                         };
 
                         foreach (var jToken in currentValue["images"]!)
@@ -976,20 +809,12 @@ namespace StarCitizenAPIWrapper.Library
                             thumbnail.Images.Add(child.Name, child.Value.ToString());
                         }
 
-                        propertyInfo.SetValue(system, thumbnail);
-
-                        break;
-                    }
-                    default:
-                    {
-                        propertyInfo.SetValue(system, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-                     
-                        break;
+                        return thumbnail;
                     }
                 }
-            }
+            };
 
-            return system;
+            return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<T>(starmapSystemJson, customParseBehaviour);
         }
 
         /// <summary>
@@ -997,34 +822,19 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static StarmapTunnel ParseStarmapTunnel(JToken starmapTunnelJson)
         {
-            var newTunnel = new StarmapTunnel();
-
-            foreach (var propertyInfo in typeof(StarmapTunnel).GetProperties())
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(starmapTunnelJson);
-
-                switch (propertyInfo.Name)
                 {
-                    case nameof(StarmapTunnel.Entry):
-                    {
-                        propertyInfo.SetValue(newTunnel, ParseStarmapTunnelEntry(currentValue));
-
-                        break;
-                    }
-                    case nameof(StarmapTunnel.Exit):
-                    {
-                        propertyInfo.SetValue(newTunnel, ParseStarmapTunnelEntry(currentValue));
-
-                        break;
-                    }
-                    default:
-                    {
-                        propertyInfo.SetValue(newTunnel, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                        break;
-                    }
+                    nameof(StarmapTunnel.Entry), ParseStarmapTunnelEntry
+                },
+                {
+                    nameof(StarmapTunnel.Exit), ParseStarmapTunnelEntry
                 }
-            }
+            };
+
+            var newTunnel =
+                GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarmapTunnel>(starmapTunnelJson,
+                    customBehaviour);
 
             return newTunnel;
         }
@@ -1034,46 +844,22 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private static StarmapTunnelEntry ParseStarmapTunnelEntry(JToken starmapTunnelEntryJson)
         {
-            var tunnelEntry = new StarmapTunnelEntry();
-
-            foreach (var propertyInfo in typeof(StarmapTunnelEntry).GetProperties())
-            {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(starmapTunnelEntryJson);
-
-                switch (propertyInfo.Name)
-                {
-                    default:
-                    {
-                        propertyInfo.SetValue(tunnelEntry, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                        break;
-                    }
-                }
-            }
-
-            return tunnelEntry;
+            return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarmapTunnelEntry>(starmapTunnelEntryJson,
+                new Dictionary<string, Func<JToken, object>>());
         }
         /// <summary>
         /// Parses the given json data into a <see cref="StarCitizenStarMapObject"/>.
         /// </summary>
         private static StarCitizenStarMapObject ParseStarCitizenStarMapObject(JToken objectJson)
         {
-            var newObject = new StarCitizenStarMapObject();
-
-            foreach (var propertyInfo in typeof(StarCitizenStarMapObject).GetProperties())
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(objectJson);
-
-                if (string.IsNullOrEmpty(currentValue?.ToString()))
-                    continue;
-
-                switch (propertyInfo.Name)
                 {
-                    case nameof(StarCitizenStarMapObject.Affiliations):
+                    nameof(StarCitizenStarMapObject.Affiliations), delegate(JToken currentValue)
                     {
                         var affiliationList = new List<StarmapSystemAffiliation>();
 
-                        foreach (var arrayItemJson in (JArray)currentValue)
+                        foreach (var arrayItemJson in (JArray) currentValue)
                         {
                             var affiliation = new StarmapSystemAffiliation
                             {
@@ -1087,35 +873,28 @@ namespace StarCitizenAPIWrapper.Library
                             affiliationList.Add(affiliation);
                         }
 
-                        propertyInfo.SetValue(newObject, affiliationList);
-                        break;
+                        return affiliationList;
                     }
-                    case nameof(StarCitizenStarMapObject.Children):
+                },
+                {
+                    nameof(StarCitizenStarMapObject.Children),
+                    currentValue => currentValue.Children().Select(ParseStarCitizenStarMapObject).ToList()
+                },
+                {
+                    nameof(StarCitizenStarMapObject.SubType),
+                    currentValue => new StarMapObjectSubType
                     {
-                        var list = currentValue.Children().Select(ParseStarCitizenStarMapObject).ToList();
-
-                        propertyInfo.SetValue(newObject, list);
-
-                        break;
+                        Name = currentValue["name"]!.ToString(),
+                        Type = currentValue["type"]!.ToString(),
+                        Id = int.Parse(currentValue["id"]!.ToString())
                     }
-                    case nameof(StarCitizenStarMapObject.SubType):
-                    {
-                        var subType = new StarMapObjectSubType
-                        {
-                            Name = currentValue["name"]!.ToString(),
-                            Type = currentValue["type"]!.ToString(),
-                            Id = int.Parse(currentValue["id"]!.ToString())
-                        };
-
-                        propertyInfo.SetValue(newObject, subType);
-                        break;
-                    }
-                    case nameof(StarCitizenStarMapObject.Textures):
+                },
+                {
+                    nameof(StarCitizenStarMapObject.Textures), delegate(JToken currentValue)
                     {
                         var textures = new StarMapObjectTextures
                         {
-                            Source = currentValue["source"]!.ToString(),
-                            Slug = currentValue["slug"]!.ToString()
+                            Source = currentValue["source"]!.ToString(), Slug = currentValue["slug"]!.ToString()
                         };
 
                         foreach (var jToken in currentValue["images"]!.Children())
@@ -1124,20 +903,12 @@ namespace StarCitizenAPIWrapper.Library
                             textures.Images.Add(child.Name, child.Value.ToString());
                         }
 
-                        propertyInfo.SetValue(newObject, textures);
-
-                        break;
+                        return textures;
                     }
-                    default:
-                        {
-                            propertyInfo.SetValue(newObject, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                            break;
-                        }
                 }
-            }
+            };
 
-            return newObject;
+            return GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarCitizenStarMapObject>(objectJson, customBehaviour);
         }
         /// <summary>
         /// Parses the given json data into a <see cref="StarmapSearchObjectStarSystem"/>.
@@ -1157,29 +928,14 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private StarmapSearchObject ParseStarmapSearchObject(JToken data)
         {
-            var newSearchObject = new StarmapSearchObject();
-
-            foreach (var propertyInfo in typeof(StarmapSearchObject).GetProperties())
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(data);
+                {nameof(StarmapSearchObject.StarSystem), ParseStarmapSearchObjectSystem}
+            };
 
-                switch (propertyInfo.Name)
-                {
-                    case nameof(StarmapSearchObject.StarSystem):
-                    {
-                        propertyInfo.SetValue(newSearchObject, ParseStarmapSearchObjectSystem(currentValue));
-
-                        break;
-                    }
-                    default:
-                    {
-                        propertyInfo.SetValue(newSearchObject, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                        break;
-                    }
-                }
-            }
-
+            var newSearchObject =
+                GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarmapSearchObject>(data, customBehaviour);
+            
             return newSearchObject;
         }
 

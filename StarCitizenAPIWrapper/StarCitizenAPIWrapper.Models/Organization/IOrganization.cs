@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using StarCitizenAPIWrapper.Models.Attributes;
+﻿using StarCitizenAPIWrapper.Models.Attributes;
 
 namespace StarCitizenAPIWrapper.Models.Organization
 {
@@ -111,7 +110,8 @@ namespace StarCitizenAPIWrapper.Models.Organization
         PMC,
         Faith,
         Syndicate,
-        Organization
+        Organization,
+        Undefined
 #pragma warning restore 1591
     }
 }

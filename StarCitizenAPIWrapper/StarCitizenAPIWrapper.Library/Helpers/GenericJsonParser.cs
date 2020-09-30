@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 namespace StarCitizenAPIWrapper.Library.Helpers
@@ -9,6 +9,29 @@ namespace StarCitizenAPIWrapper.Library.Helpers
     /// </summary>
     public static class GenericJsonParser
     {
+        /// <summary>
+        /// Parses the given json data into a new instance of the given type.
+        /// </summary>
+        public static T ParseJsonIntoNewInstanceOfGivenType<T>(JToken data, Dictionary<string, Func<JToken, object>> customBehaviour)
+        {
+            var newInstance = (T) Activator.CreateInstance(typeof(T));
+
+            foreach (var propertyInfo in typeof(T).GetProperties())
+            {
+                var currentValue = propertyInfo.GetCorrectValueFromProperty(data);
+
+                if(string.IsNullOrEmpty(currentValue?.ToString()))
+                    continue;
+
+                propertyInfo.SetValue(newInstance,
+                    customBehaviour.ContainsKey(propertyInfo.Name)
+                        ? customBehaviour[propertyInfo.Name].Invoke(currentValue)
+                        : ParseValueIntoSupportedTypeSafe(currentValue.ToString(), propertyInfo.PropertyType));
+            }
+
+            return newInstance;
+        }
+
         /// <summary>
         /// Parses the given value into an object of the given type if the conversion was successful.
         /// Otherwise gives back the value as string.
@@ -42,7 +65,16 @@ namespace StarCitizenAPIWrapper.Library.Helpers
                 if(DateTime.TryParse(value, out var dateResult))
                     return dateResult;
             }
-            return value;
+            return Activator.CreateInstance(type);
+        }
+
+        /// <summary>
+        /// Parses the given value into an object of the given type if the conversion was successful.
+        /// Otherwise gives back the value as string.
+        /// </summary>
+        public static T ParseValueIntoSupportedTypeSafe<T>(string value, bool parseDateTimeFromTimeStamp = false)
+        {
+            return (T) ParseValueIntoSupportedTypeSafe(value, typeof(T), parseDateTimeFromTimeStamp);
         }
     }
 }

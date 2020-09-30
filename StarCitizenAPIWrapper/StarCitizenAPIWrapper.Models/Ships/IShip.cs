@@ -180,7 +180,8 @@ namespace StarCitizenAPIWrapper.Models.Ships
 #pragma warning disable 1591
         FlightReady,
         InConcept,
-        InProduction
+        InProduction,
+        Undefined
     }
 
     /// <summary>
@@ -193,7 +194,8 @@ namespace StarCitizenAPIWrapper.Models.Ships
         Medium,
         Vehicle,
         Large,
-        Capital
+        Capital,
+        Undefined
     }
 
     /// <summary>
@@ -208,7 +210,8 @@ namespace StarCitizenAPIWrapper.Models.Ships
         Industrial,
         Support,
         Competition,
-        Ground
+        Ground,
+        Undefined
 
     }
 
