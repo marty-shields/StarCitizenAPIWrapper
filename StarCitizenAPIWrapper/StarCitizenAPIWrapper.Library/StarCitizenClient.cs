@@ -929,29 +929,14 @@ namespace StarCitizenAPIWrapper.Library
         /// </summary>
         private StarmapSearchObject ParseStarmapSearchObject(JToken data)
         {
-            var newSearchObject = new StarmapSearchObject();
-
-            foreach (var propertyInfo in typeof(StarmapSearchObject).GetProperties())
+            var customBehaviour = new Dictionary<string, Func<JToken, object>>
             {
-                var currentValue = propertyInfo.GetCorrectValueFromProperty(data);
+                {nameof(StarmapSearchObject.StarSystem), ParseStarmapSearchObjectSystem}
+            };
 
-                switch (propertyInfo.Name)
-                {
-                    case nameof(StarmapSearchObject.StarSystem):
-                    {
-                        propertyInfo.SetValue(newSearchObject, ParseStarmapSearchObjectSystem(currentValue));
-
-                        break;
-                    }
-                    default:
-                    {
-                        propertyInfo.SetValue(newSearchObject, GenericJsonParser.ParseValueIntoSupportedTypeSafe(currentValue?.ToString(), propertyInfo.PropertyType));
-
-                        break;
-                    }
-                }
-            }
-
+            var newSearchObject =
+                GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType<StarmapSearchObject>(data, customBehaviour);
+            
             return newSearchObject;
         }
 
