@@ -495,7 +495,7 @@ namespace StarCitizenAPIWrapper.Library
             var content = await response.Content.ReadAsStringAsync();
             var data = JObject.Parse(content)["data"];
 
-            return ParseStarCitizenStarMapObject(data);
+            return string.IsNullOrEmpty(data?.ToString()) ? null : ParseStarCitizenStarMapObject(data);
         }
 
         /// <summary>
