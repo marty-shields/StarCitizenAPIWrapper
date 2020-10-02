@@ -31,6 +31,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// The id of the chassis of this ship.
         /// </summary>
+        [ApiName("chassis_id")]
         int ChassisId { get; set; }
 
         /// <summary>
@@ -71,6 +72,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// The id of the manufacturer of this ship.
         /// </summary>
+        [ApiName("manufacturer_id")]
         int ManufacturerId { get; set; }
 
         /// <summary>
@@ -103,6 +105,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// The maximal amount of pitch this ship has.
         /// </summary>
+        [ApiName("pitch_max")]
         double PitchMax { get; set; }
 
         /// <summary>
@@ -113,6 +116,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// The production note of this ship.
         /// </summary>
+        [ApiName("production_note")]
         string ProductionNote { get; set; }
 
         /// <summary>
@@ -124,11 +128,13 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// The maximal amount of roll this ship has.
         /// </summary>
+        [ApiName("roll_max")]
         double RollMax { get; set; }
 
         /// <summary>
         /// The scm speed of this ship.
         /// </summary>
+        [ApiName("scm_speed")]
         int ScmSpeed { get; set; }
 
         /// <summary>
@@ -154,21 +160,25 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// The acceleration on the x-axis of this ship.
         /// </summary>
+        [ApiName("xaxis_acceleration")]
         double XAxisAcceleration { get; set; }
 
         /// <summary>
         /// The maximal amount of yaw of this ship.
         /// </summary>
+        [ApiName("yaw_max")]
         double YawMax { get; set; }
 
         /// <summary>
         /// The acceleration on the y-axis of this ship.
         /// </summary>
+        [ApiName("yaxis_acceleration")]
         double YAxisAcceleration { get; set; }
 
         /// <summary>
         /// The acceleration on the z-axis of this ship.
         /// </summary>
+        [ApiName("zaxis_acceleration")]
         double ZAxisAcceleration { get; set; }
     }
 
