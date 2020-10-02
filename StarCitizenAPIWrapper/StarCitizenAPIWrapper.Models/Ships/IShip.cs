@@ -81,6 +81,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// The maximal amount of crew members for this ship.
         /// </summary>
+        [ApiName("max_crew")]
         int MaxCrew { get; set; }
 
         /// <summary>
@@ -91,6 +92,7 @@ namespace StarCitizenAPIWrapper.Models.Ships
         /// <summary>
         /// The minimal amount of crew members for this ship.
         /// </summary>
+        [ApiName("min_crew")]
         int MinCrew { get; set; }
 
         /// <summary>
