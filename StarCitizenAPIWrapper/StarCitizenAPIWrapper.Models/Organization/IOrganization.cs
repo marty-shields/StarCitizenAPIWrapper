@@ -95,8 +95,19 @@ namespace StarCitizenAPIWrapper.Models.Organization
     public enum FocusTypes
     {
 #pragma warning disable 1591
+        BountyHunting,
+        Engineering,
+        Exploration,
+        Freelancing,
+        Infiltration,
+        Piracy,
+        Resources,
+        Scouting,
         Security,
-        Freelancing
+        Smuggling,
+        Social,
+        Trading,
+        Transport
 #pragma warning restore 1591
     }
 
