@@ -130,26 +130,29 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:StarCitizenAPIWrapper.Library.Helpers.ServiceCollectionExtension">
+            <summary>
+            Extension for the <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to use the <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ServiceCollectionExtension.AddStarCitizenClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds the <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/> to the service collection.
+            </summary>
+        </member>
         <member name="T:StarCitizenAPIWrapper.Library.StarCitizenClient">
             <summary>
             Client to connect to the Star Citizen API.
             </summary>
         </member>
-        <member name="F:StarCitizenAPIWrapper.Library.StarCitizenClient._currentClient">
+        <member name="P:StarCitizenAPIWrapper.Library.StarCitizenClient.Client">
             <summary>
-            The current <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/> instance.
+            The http client given in the constructor to access the api.
             </summary>
         </member>
-        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.#ctor(System.String)">
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.#ctor(Microsoft.Extensions.Configuration.IConfiguration,System.Net.Http.HttpClient)">
             <summary>
             Initializes a new instance of <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
-            </summary>
-            <param name="apiKey"></param>
-        </member>
-        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetClient(System.String)">
-            <summary>
-            Gives the current <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
-            Creates one if there isn't a current instance.
             </summary>
         </member>
         <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetUser(System.String)">

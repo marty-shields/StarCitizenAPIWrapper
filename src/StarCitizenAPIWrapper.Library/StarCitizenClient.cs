@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using StarCitizenAPIWrapper.Library.Helpers;
 using StarCitizenAPIWrapper.Models.Organization;
@@ -42,13 +43,13 @@ namespace StarCitizenAPIWrapper.Library
         private const string ApiCacheRequestUrl = "https://api.starcitizen-api.com/{0}/v1/cache/{1}";
 
         #endregion
-
-        #region Static Instances
+        
+        #region Public properties
 
         /// <summary>
-        /// The current <see cref="StarCitizenClient"/> instance.
+        /// The http client given in the constructor to access the api.
         /// </summary>
-        private static StarCitizenClient _currentClient;
+        public HttpClient Client { get; }
 
         #endregion
 
@@ -63,23 +64,10 @@ namespace StarCitizenAPIWrapper.Library
         /// <summary>
         /// Initializes a new instance of <see cref="StarCitizenClient"/>.
         /// </summary>
-        /// <param name="apiKey"></param>
-        private StarCitizenClient(string apiKey)
+        public StarCitizenClient(IConfiguration config, HttpClient client)
         {
-            _apiKey = apiKey;
-        }
-
-        #endregion
-
-        #region static Methods
-
-        /// <summary>
-        /// Gives the current <see cref="StarCitizenClient"/>.
-        /// Creates one if there isn't a current instance.
-        /// </summary>
-        public static StarCitizenClient GetClient(string apiKey)
-        {
-            return _currentClient ??= new StarCitizenClient(apiKey);
+            _apiKey = config.GetSection("StarCitizenAPI").GetSection("ApiKey").Value;
+            Client = client;
         }
 
         #endregion
