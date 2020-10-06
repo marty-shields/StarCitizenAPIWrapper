@@ -82,8 +82,7 @@ namespace StarCitizenAPIWrapper.Library
         public async Task<IUser> GetUser(string handle)
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"user/{handle}");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            var response = await Client.GetAsync(requestUrl);
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
@@ -109,8 +108,8 @@ namespace StarCitizenAPIWrapper.Library
         public async Task<IOrganization> GetOrganization(string sid)
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"organization/{sid}");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
@@ -173,8 +172,8 @@ namespace StarCitizenAPIWrapper.Library
         public async Task<List<IOrganizationMember>> GetOrganizationMembers(string sid)
         {
             var requestUrl = string.Format(ApiLiveRequestUrl, _apiKey, $"organization_members/{sid}");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
@@ -208,8 +207,8 @@ namespace StarCitizenAPIWrapper.Library
         public async Task<IVersion> GetVersions()
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, "versions");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
@@ -227,8 +226,8 @@ namespace StarCitizenAPIWrapper.Library
         public async Task<List<IShip>> GetShips(ShipRequest request)
         {
             var requestUrl = string.Format(ApiCacheRequestUrl, _apiKey, $"/ships?{string.Join("&", request.RequestParameters)}");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             if(!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
@@ -297,8 +296,8 @@ namespace StarCitizenAPIWrapper.Library
         public async Task<List<RoadMap>> GetRoadmap(RoadmapTypes roadmapType, string version)
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"roadmap/{roadmapType.ToString().ToLower()}?version={version}");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             if(!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
@@ -328,8 +327,8 @@ namespace StarCitizenAPIWrapper.Library
         public async Task<StarCitizenStats> GetStats()
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, "stats");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
@@ -372,8 +371,8 @@ namespace StarCitizenAPIWrapper.Library
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey,
                 string.IsNullOrEmpty(id) ? "starmap/tunnels" : $"starmap/tunnels?id={id}");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
@@ -401,8 +400,8 @@ namespace StarCitizenAPIWrapper.Library
                     ? "starmap/species"
                     : $"starmap/species?name={name}");
 
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
@@ -440,8 +439,8 @@ namespace StarCitizenAPIWrapper.Library
                 string.IsNullOrEmpty(name)
                     ? "starmap/affiliations"
                     : $"starmap/affiliations?name={name}");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 
@@ -476,8 +475,8 @@ namespace StarCitizenAPIWrapper.Library
         public async Task<StarCitizenStarMapObject> GetObject(string code)
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"starmap/object?code={code}");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
@@ -492,8 +491,8 @@ namespace StarCitizenAPIWrapper.Library
         public async Task<StarmapSystemDetail> GetStarmapSystem(string code)
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"starmap/star-system?code={code}");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
@@ -516,8 +515,8 @@ namespace StarCitizenAPIWrapper.Library
         public async Task<StarmapSearchResult> GetStarmapObjectFromName(string name)
         {
             var requestUrl = string.Format(ApiRequestUrl, _apiKey, $"starmap/search?name={name}");
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            
+            var response = await Client.GetAsync(requestUrl);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
@@ -727,10 +726,9 @@ namespace StarCitizenAPIWrapper.Library
         /// <summary>
         /// Sends an API request for the star system information with the given name.
         /// </summary>
-        private static async Task<List<IStarmapSystem>> GetSystems(string requestUrl)
+        private async Task<List<IStarmapSystem>> GetSystems(string requestUrl)
         {
-            using var client = new HttpClient();
-            var response = await client.GetAsync(requestUrl);
+            var response = await Client.GetAsync(requestUrl);
             if (!response.IsSuccessStatusCode)
                 throw new Exception(response.ReasonPhrase);
 

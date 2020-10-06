@@ -41,6 +41,16 @@
             Otherwise gives back the value as string.
             </summary>
         </member>
+        <member name="T:StarCitizenAPIWrapper.Library.Helpers.ServiceCollectionExtension">
+            <summary>
+            Extension for the <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to use the <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ServiceCollectionExtension.AddStarCitizenClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds the <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/> to the service collection.
+            </summary>
+        </member>
         <member name="T:StarCitizenAPIWrapper.Library.Helpers.ShipRequest">
             <summary>
             A complete request for the api about specific ships.
@@ -129,16 +139,6 @@
             Builds the configured request for the api.
             </summary>
             <returns></returns>
-        </member>
-        <member name="T:StarCitizenAPIWrapper.Library.Helpers.ServiceCollectionExtension">
-            <summary>
-            Extension for the <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to use the <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
-            </summary>
-        </member>
-        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ServiceCollectionExtension.AddStarCitizenClient(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
-            <summary>
-            Adds the <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/> to the service collection.
-            </summary>
         </member>
         <member name="T:StarCitizenAPIWrapper.Library.StarCitizenClient">
             <summary>
