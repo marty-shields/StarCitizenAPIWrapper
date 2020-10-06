@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\StarCitizenAPIWrapper.Library\StarCitizenAPIWrapper.Library.csproj" />
+    <ProjectReference Include="..\..\src\StarCitizenAPIWrapper.Library\StarCitizenAPIWrapper.Library.csproj" />
   </ItemGroup>
 
   <ItemGroup>

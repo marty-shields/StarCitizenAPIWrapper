@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30517.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{68F153F8-A57A-4BE2-93BB-E1E2BC705C1E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unit", "unit", "{9D765D90-0086-4848-8A01-99E111B58654}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StarCitizenAPIWrapper.Library.Tests", "test\unit\StarCitizenAPIWrapper.Library.Tests\StarCitizenAPIWrapper.Library.Tests.csproj", "{7E2703D8-07D7-4C06-8828-8D879A0C5EE8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{075F4E53-3FA7-4754-A8D1-65BFAB2DCEA6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StarCitizenAPIWrapper.Library", "src\StarCitizenAPIWrapper.Library\StarCitizenAPIWrapper.Library.csproj", "{0FEDEA28-BE7B-45B7-B391-DACF1DD0700D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StarCitizenAPIWrapper.Models", "src\StarCitizenAPIWrapper.Models\StarCitizenAPIWrapper.Models.csproj", "{8ACDCFFA-9921-414A-98D3-629F95F684DA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "example", "example", "{4CFCE72C-9A95-4B30-9723-F3829D68182C}"
+	ProjectSection(SolutionItems) = preProject
+		example\M50-API-Result.json = example\M50-API-Result.json
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StarCitizenAPIWrapper.Example.Console", "example\StarCitizenAPIWrapper.Examples.Console\StarCitizenAPIWrapper.Example.Console.csproj", "{C2506D54-7EC5-4B76-9CBC-6E2805C697C2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7E2703D8-07D7-4C06-8828-8D879A0C5EE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E2703D8-07D7-4C06-8828-8D879A0C5EE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E2703D8-07D7-4C06-8828-8D879A0C5EE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E2703D8-07D7-4C06-8828-8D879A0C5EE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FEDEA28-BE7B-45B7-B391-DACF1DD0700D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FEDEA28-BE7B-45B7-B391-DACF1DD0700D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FEDEA28-BE7B-45B7-B391-DACF1DD0700D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FEDEA28-BE7B-45B7-B391-DACF1DD0700D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8ACDCFFA-9921-414A-98D3-629F95F684DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8ACDCFFA-9921-414A-98D3-629F95F684DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8ACDCFFA-9921-414A-98D3-629F95F684DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8ACDCFFA-9921-414A-98D3-629F95F684DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2506D54-7EC5-4B76-9CBC-6E2805C697C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2506D54-7EC5-4B76-9CBC-6E2805C697C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2506D54-7EC5-4B76-9CBC-6E2805C697C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2506D54-7EC5-4B76-9CBC-6E2805C697C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9D765D90-0086-4848-8A01-99E111B58654} = {68F153F8-A57A-4BE2-93BB-E1E2BC705C1E}
+		{7E2703D8-07D7-4C06-8828-8D879A0C5EE8} = {9D765D90-0086-4848-8A01-99E111B58654}
+		{0FEDEA28-BE7B-45B7-B391-DACF1DD0700D} = {075F4E53-3FA7-4754-A8D1-65BFAB2DCEA6}
+		{8ACDCFFA-9921-414A-98D3-629F95F684DA} = {075F4E53-3FA7-4754-A8D1-65BFAB2DCEA6}
+		{C2506D54-7EC5-4B76-9CBC-6E2805C697C2} = {4CFCE72C-9A95-4B30-9723-F3829D68182C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B6E2FB79-080F-4EE9-858F-18191060AB2F}
+	EndGlobalSection
+EndGlobal

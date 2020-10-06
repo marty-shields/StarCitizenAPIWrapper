@@ -1,0 +1,325 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>StarCitizenAPIWrapper.Library</name>
+    </assembly>
+    <members>
+        <member name="T:StarCitizenAPIWrapper.Library.Helpers.AttributeHelper">
+            <summary>
+            Helper class to for using the custom attributes.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.AttributeHelper.GetCorrectValueFromProperty(System.Reflection.PropertyInfo,Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Gets the value from a json object with the correct name specified in the <see cref="T:StarCitizenAPIWrapper.Models.Attributes.ApiNameAttribute"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.AttributeHelper.GetCustomAttributesIncludingBaseInterfaces``1(System.Reflection.PropertyInfo)">
+            <summary>
+            Gets custom attributes even if they are from the derived interface.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Library.Helpers.GenericJsonParser">
+            <summary>
+            Helper class to parse json objects into specific types.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.GenericJsonParser.ParseJsonIntoNewInstanceOfGivenType``1(Newtonsoft.Json.Linq.JToken,System.Collections.Generic.Dictionary{System.String,System.Func{Newtonsoft.Json.Linq.JToken,System.Object}})">
+            <summary>
+            Parses the given json data into a new instance of the given type.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.GenericJsonParser.ParseValueIntoSupportedTypeSafe(System.String,System.Type,System.Boolean)">
+            <summary>
+            Parses the given value into an object of the given type if the conversion was successful.
+            Otherwise gives back the value as string.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.GenericJsonParser.ParseValueIntoSupportedTypeSafe``1(System.String,System.Boolean)">
+            <summary>
+            Parses the given value into an object of the given type if the conversion was successful.
+            Otherwise gives back the value as string.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Library.Helpers.ShipRequest">
+            <summary>
+            A complete request for the api about specific ships.
+            </summary>
+        </member>
+        <member name="P:StarCitizenAPIWrapper.Library.Helpers.ShipRequest.RequestParameters">
+            <summary>
+            Array of parameters for the api request.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder">
+            <summary>
+            A builder class to help creating a request for specific ships.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.AddClassification(System.String)">
+            <summary>
+            Adds the specified classification to the request.
+            </summary>
+            <param name="classification">The classification to be added.</param>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithName(System.String)">
+            <summary>
+            Sets the name of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithLengthMin(System.Int32)">
+            <summary>
+            Sets the minimal length of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithLengthMax(System.Int32)">
+            <summary>
+            Sets the maximal length of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithCrewMin(System.Int32)">
+            <summary>
+            Sets the minimal amount of crew members of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithCrewMax(System.Int32)">
+            <summary>
+            Sets the maximal amount of crew members of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithPriceMin(System.Int32)">
+            <summary>
+            Sets the minimal price of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithPriceMax(System.Int32)">
+            <summary>
+            Sets the maximal price of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithMassMin(System.Int32)">
+            <summary>
+            Sets the minimal mass of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithMassMax(System.Int32)">
+            <summary>
+            Sets the maximal mass of the ships to search.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithPageMax(System.Int32)">
+            <summary>
+            Sets the maximal pages on the RSI website of the ships to search with the specified parameters.
+            <remarks>
+            Careful that per page it takes around 15 seconds to process those results.
+            </remarks>
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.WithId(System.Int32)">
+            <summary>
+            Sets the id of the ship to search
+            <remarks>
+            This works only with the cached database
+            because its the id of the API database.
+            </remarks>
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.Helpers.ShipRequestBuilder.Build">
+            <summary>
+            Builds the configured request for the api.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Library.StarCitizenClient">
+            <summary>
+            Client to connect to the Star Citizen API.
+            </summary>
+        </member>
+        <member name="F:StarCitizenAPIWrapper.Library.StarCitizenClient._currentClient">
+            <summary>
+            The current <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/> instance.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
+            </summary>
+            <param name="apiKey"></param>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetClient(System.String)">
+            <summary>
+            Gives the current <see cref="T:StarCitizenAPIWrapper.Library.StarCitizenClient"/>.
+            Creates one if there isn't a current instance.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetUser(System.String)">
+            <summary>
+            Sends an API request for user information.
+            </summary>
+            <param name="handle">The handle of the requested user.</param>
+            <returns>An instance of <see cref="T:StarCitizenAPIWrapper.Models.User.IUser"/> containing the information about the requested user.</returns>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetOrganization(System.String)">
+            <summary>
+            Sends an API request for organization information.
+            </summary>
+            <param name="sid">The SID of the organization</param>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetOrganizationMembers(System.String)">
+            <summary>
+            Sends an API request for members of an organization.
+            </summary>
+            <param name="sid">The SID of the organization.</param>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetVersions">
+            <summary>
+            Sends an API request for current existing versions.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetShips(StarCitizenAPIWrapper.Library.Helpers.ShipRequest)">
+            <summary>
+            Sends an API request for the ships within the specified parameters.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetRoadmap(StarCitizenAPIWrapper.Library.RoadmapTypes,System.String)">
+            <summary>
+            Sends an API request for the roadmap of the given type.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetStats">
+            <summary>
+            Sends an API request for the current star citizen stats.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetAllSystems">
+            <summary>
+            Sends an API request for all star systems;
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetSystem(System.String)">
+            <summary>
+            Sends an API request for the star system information with the given name.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetTunnels(System.String)">
+            <summary>
+            Gets the tunnel with the given id or all tunnels.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetSpecies(System.String)">
+            <summary>
+            Gets the information of the species from the API.
+            </summary>
+            <param name="name">The name if a specific one is requested.</param>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetAffiliations(System.String)">
+            <summary>
+            Gets the information of the affiliations from the API.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetObject(System.String)">
+            <summary>
+            Gets the information from the API of the given object code.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetStarmapSystem(System.String)">
+            <summary>
+            Gets the information from the API of the given system code.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetStarmapObjectFromName(System.String)">
+            <summary>
+            Gets a specific starmap object with the given name.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseUserProfile(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given profile json into a <see cref="T:StarCitizenAPIWrapper.Models.User.IUserProfile"/>.
+            </summary>
+            <param name="profileData">The <see cref="T:Newtonsoft.Json.Linq.JToken"/> containing the profile information.</param>
+            <returns>A new instance of <see cref="T:StarCitizenAPIWrapper.Models.User.IUserProfile"/> containing the parsed information.</returns>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseUserOrganizationInfo(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given organization information of a user into a <see cref="T:StarCitizenAPIWrapper.Models.User.IUserOrganizationInfo"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseShipMedia(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given media information into a <see cref="T:StarCitizenAPIWrapper.Models.Ships.Media.ApiMedia"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseShipMediaImage(Newtonsoft.Json.Linq.JToken,Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given media image information into a <see cref="T:StarCitizenAPIWrapper.Models.Ships.Media.ShipMediaImage"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseManufacturer(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given manufacturer information into a <see cref="T:StarCitizenAPIWrapper.Models.Ships.Manufacturer.ShipManufacturer"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseShipCompiled(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given compiled information of a ship into a 
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseShipComponents(Newtonsoft.Json.Linq.JEnumerable{Newtonsoft.Json.Linq.JToken})">
+            <summary>
+            Parses the given component types into a list of ship components.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseRoadmapCards(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given information of roadmap cards into a list of <see cref="T:StarCitizenAPIWrapper.Models.RoadMap.RoadMapCard"/>
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseRoadMapCardThumbnail(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given information into a <see cref="T:StarCitizenAPIWrapper.Models.RoadMap.RoadMapCardThumbnail"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.GetSystems(System.String)">
+            <summary>
+            Sends an API request for the star system information with the given name.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseStarmapSystem``1(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given json data into a <see cref="T:StarCitizenAPIWrapper.Models.Starmap.Systems.Implementations.StarmapSystem"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseStarmapTunnel(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given tunnel information into a <see cref="T:StarCitizenAPIWrapper.Models.Starmap.Tunnels.StarmapTunnel"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseStarmapTunnelEntry(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given json data into a <see cref="T:StarCitizenAPIWrapper.Models.Starmap.Tunnels.StarmapTunnelEntry"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseStarCitizenStarMapObject(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given json data into a <see cref="T:StarCitizenAPIWrapper.Models.Starmap.Object.StarCitizenStarMapObject"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseStarmapSearchObjectSystem(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given json data into a <see cref="T:StarCitizenAPIWrapper.Models.Starmap.Search.StarmapSearchObjectStarSystem"/>.
+            </summary>
+        </member>
+        <member name="M:StarCitizenAPIWrapper.Library.StarCitizenClient.ParseStarmapSearchObject(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Parses the given json data into a <see cref="T:StarCitizenAPIWrapper.Models.Starmap.Search.StarmapSearchObject"/>.
+            </summary>
+        </member>
+        <member name="T:StarCitizenAPIWrapper.Library.RoadmapTypes">
+            <summary>
+            The different types of roadmap.
+            </summary>
+        </member>
+    </members>
+</doc>
